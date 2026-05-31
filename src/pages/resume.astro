@@ -1,0 +1,167 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const experience = [
+  {
+    role: 'Intern - Electrostatic Precipitator & Dust Collecting Maintenance Unit',
+    company: 'PT. Semen Padang',
+    period: 'Nov 2025 – May 2026',
+    location: 'Padang, Indonesia',
+    bullets: [
+      'Developed a web-based Maintenance Service Order (MSO) application using Laravel to digitize ESP and dust collector maintenance, improving tracking and work assignment efficiency.',
+      'Implemented CRUD operations, multi-role authentication (operator, technician, supervisor), and a performance dashboard displaying MTTR, MTBF, and equipment status.',
+      'Gained deep understanding of industrial maintenance workflows and system integration with field requirements.',
+    ],
+  },
+  {
+    role: 'Intern - Statistics & Cryptography Department',
+    company: 'Dinas Komunikasi dan Informatika (DISKOMINFO) Padang City',
+    period: 'Jul 2024 – Oct 2024',
+    location: 'Padang, Indonesia',
+    bullets: [
+      'Built a multi-vector attack detection system using Python to analyze server logs and detect 11 attack categories (SQL Injection, XSS, DoS, Brute Force, Path Traversal, etc.).',
+      'Implemented regex pattern matching with URL decoding pipeline to detect encoded attack payloads in Apache/Nginx log formats.',
+      'Developed behavioral anomaly detection based on IP profiling for automatic identification of Brute Force (>5 attempts) and DoS attacks (>100 requests).',
+      'Automated the entire pipeline from raw log parsing to report generation using Pandas, producing structured CSV output for security team forensic analysis.',
+    ],
+  },
+];
+
+const education = [
+  {
+    degree: 'Bachelor of Informatics (S1)',
+    institution: 'Universitas Negeri Padang',
+    period: '2021 – 2025',
+    detail: 'Focus: Data Analysis, Machine Learning, and Statistics. Final Project: Lung Disease Detection System based on Deep Learning (DenseNet-169) for medical image classification.',
+  },
+];
+
+const certifications = [
+  // Kosongkan atau tambahkan nanti. Contoh placeholder:
+  // { name: 'Google Data Analytics', issuer: 'Google', year: '2024' },
+];
+
+const activities = [
+  'Summer Course at INTI International University, Malaysia – Selected for academic & cultural exchange program.',
+  'MSIB Independent Study at MIKTI – Data Science – Practical learning in data analysis & machine learning.',
+  'CEO of INFINITE TECHNOLOGY UNP (2023) – Led initiatives to drive innovation and digital literacy on campus.',
+];
+---
+
+<Layout title="Resume" description="Muhammad Rizky Sandyra's resume and work history">
+  <section class="pt-32 pb-20 px-6 max-w-5xl mx-auto">
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
+      <div>
+        <p class="section-label">Curriculum Vitae</p>
+        <h1 class="font-display text-5xl md:text-6xl text-navy-900 dark:text-white">
+          Muhammad <span class="italic text-indigo-600 dark:text-indigo-400">Rizky Sandyra</span>
+        </h1>
+      </div>
+      <a
+        href="/resume.pdf"
+        download
+        class="btn-primary self-start md:self-auto"
+      >
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+        </svg>
+        Download PDF
+      </a>
+    </div>
+
+    <div class="space-y-16">
+      <!-- Experience -->
+      <div class="observe-fade opacity-0-init">
+        <div class="flex items-center gap-4 mb-8">
+          <p class="section-label !mb-0">Experience</p>
+          <div class="h-px flex-1 bg-slate-200 dark:bg-navy-700"></div>
+        </div>
+        <div class="space-y-10">
+          {experience.map(exp => (
+            <div class="grid md:grid-cols-[200px_1fr] gap-4 md:gap-8">
+              <div class="md:text-right">
+                <p class="font-mono text-xs text-indigo-500 dark:text-indigo-400 mb-1">{exp.period}</p>
+                <p class="text-xs text-slate-400 dark:text-slate-500">{exp.location}</p>
+              </div>
+              <div>
+                <h3 class="font-display text-xl text-navy-900 dark:text-white mb-0.5">{exp.role}</h3>
+                <p class="font-mono text-sm font-medium text-indigo-600 dark:text-indigo-400 mb-3">{exp.company}</p>
+                <ul class="space-y-2">
+                  {exp.bullets.map(b => (
+                    <li class="flex gap-3 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                      <span class="text-indigo-500 mt-0.5 flex-shrink-0">▸</span>
+                      <span>{b}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <!-- Education -->
+      <div class="observe-fade opacity-0-init">
+        <div class="flex items-center gap-4 mb-8">
+          <p class="section-label !mb-0">Education</p>
+          <div class="h-px flex-1 bg-slate-200 dark:bg-navy-700"></div>
+        </div>
+        <div class="space-y-8">
+          {education.map(edu => (
+            <div class="grid md:grid-cols-[200px_1fr] gap-4 md:gap-8">
+              <div class="md:text-right">
+                <p class="font-mono text-xs text-indigo-500 dark:text-indigo-400">{edu.period}</p>
+              </div>
+              <div>
+                <h3 class="font-display text-lg text-navy-900 dark:text-white mb-0.5">{edu.degree}</h3>
+                <p class="font-mono text-sm font-medium text-indigo-600 dark:text-indigo-400 mb-2">{edu.institution}</p>
+                <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">{edu.detail}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <!-- Activities & Leadership -->
+      <div class="observe-fade opacity-0-init">
+        <div class="flex items-center gap-4 mb-8">
+          <p class="section-label !mb-0">Activities & Leadership</p>
+          <div class="h-px flex-1 bg-slate-200 dark:bg-navy-700"></div>
+        </div>
+        <div class="space-y-3">
+          {activities.map(activity => (
+            <div class="flex gap-3 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+              <span class="text-indigo-500 mt-0.5">▸</span>
+              <span>{activity}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <!-- Certifications (optional, comment out if empty) -->
+      {certifications.length > 0 && (
+        <div class="observe-fade opacity-0-init">
+          <div class="flex items-center gap-4 mb-8">
+            <p class="section-label !mb-0">Certifications</p>
+            <div class="h-px flex-1 bg-slate-200 dark:bg-navy-700"></div>
+          </div>
+          <div class="grid sm:grid-cols-2 gap-4">
+            {certifications.map(cert => (
+              <div class="flex items-start gap-4 p-4 rounded-xl border border-slate-200 dark:border-navy-700 bg-white dark:bg-navy-900">
+                <div class="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center flex-shrink-0">
+                  <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+                  </svg>
+                </div>
+                <div>
+                  <p class="text-sm font-medium text-navy-900 dark:text-white">{cert.name}</p>
+                  <p class="text-xs text-slate-500 dark:text-slate-400 font-mono">{cert.issuer} · {cert.year}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  </section>
+</Layout>
