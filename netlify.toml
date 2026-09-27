@@ -1,4 +1,24 @@
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# The previous SPA catch-all ("/*" -> "/index.html", 200) is deliberately gone.
+# This is a multi-page static site: Astro emits a real HTML file per route, and
+# the catch-all would have shadowed the custom 404 page. Netlify serves
+# dist/404.html for unmatched paths on its own.
+
+[[headers]]
+  for = "/og/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
+
+[[headers]]
+  for = "/_astro/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"

@@ -1,0 +1,48 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { projects } from '../data/projects.js';
+
+const suggestions = projects.filter((p) => p.featured).slice(0, 2);
+---
+
+<Layout title="Page not found" description="That page doesn't exist." noindex={true}>
+  <section class="shell band-lg">
+    <p class="eyebrow m-0">Error 404</p>
+    <h1 class="mt-4 mb-0" style="font-size:clamp(2.5rem,7vw,3.375rem);letter-spacing:-.03em">
+      That page isn't here
+    </h1>
+    <p class="text-lg mt-6 mb-0" style="color:var(--muted);max-width:52ch">
+      The link may be out of date, or the address may have a typo in it. Here's the way back.
+    </p>
+
+    <div class="flex flex-wrap gap-3.5 mt-9">
+      <a href="/" class="btn btn-primary">Back to home</a>
+      <a href="/projects" class="btn btn-outline">Browse projects</a>
+    </div>
+
+    <div class="mt-16" style="border-top:1px solid var(--line);padding-top:2.5rem">
+      <p class="font-mono text-xs uppercase m-0 mb-5" style="color:var(--faint);letter-spacing:.12em">
+        Or start with these
+      </p>
+      <div class="grid gap-4 sm:grid-cols-2">
+        {suggestions.map((p) => (
+          <a href={`/projects/${p.slug}`} class="panel p-6 no-underline" data-suggestion>
+            <span class="chip-accent">{p.categories[0]}</span>
+            <span class="block font-display text-xl mt-3.5" style="color:var(--ink)">{p.title}</span>
+            <span class="block text-sm mt-2" style="color:var(--muted)">{p.summary}</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  a[data-suggestion] {
+    transition: border-color var(--dur-ui) var(--ease), transform var(--dur-slow) var(--ease);
+  }
+  a[data-suggestion]:hover {
+    border-color: var(--line-2);
+    transform: translateY(-2px);
+  }
+</style>

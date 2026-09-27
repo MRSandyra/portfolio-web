@@ -1,0 +1,97 @@
+---
+/**
+ * Lorenz curve - METHOD DIAGRAM.
+ *
+ * This shows how the Gini coefficient is derived from a Lorenz curve
+ * (Gini = A / (A + B)). It is deliberately NOT presented as a measured
+ * result for any particular country: the per-country curves live in the
+ * project notebook, and inventing one here would be fabricating a finding.
+ *
+ * The curve drawn is L(p) = p^k, whose Gini is exactly (k-1)/(k+1); the
+ * annotated value is computed from k, so the picture and the label agree.
+ */
+const X0 = 56, Y0 = 16, W = 268, H = 268;
+const px = (f: number) => +(X0 + f * W).toFixed(2);
+const py = (t: number) => +(Y0 + (1 - t) * H).toFixed(2);
+
+const k = 2.2258;                       // shape parameter
+const gini = (k - 1) / (k + 1);         // exact for L(p) = p^k
+
+const steps = 40;
+const pts: [number, number][] = [];
+for (let i = 0; i <= steps; i++) {
+  const p = i / steps;
+  pts.push([p, Math.pow(p, k)]);
+}
+const line = pts.map(([p, l], i) => `${i ? 'L' : 'M'}${px(p)} ${py(l)}`).join(' ');
+/* Area A: between the equality line and the Lorenz curve. */
+const areaA = `M${px(0)} ${py(0)} ` +
+  pts.map(([p, l]) => `L${px(p)} ${py(l)}`).join(' ') +
+  ` L${px(1)} ${py(1)} Z`;
+
+const GRID = [0, 0.25, 0.5, 0.75, 1];
+---
+
+<figure class="m-0 w-full">
+  <svg
+    class="chart"
+    viewBox="0 0 360 340"
+    role="img"
+    aria-label="Lorenz curve method diagram. The diagonal is perfect equality; the curve below it is the income distribution. The Gini coefficient is the area between them divided by the total area under the diagonal."
+  >
+    <g class="gr">
+      {GRID.slice(1, 4).map((g) => <line x1={X0} y1={py(g)} x2={X0 + W} y2={py(g)} />)}
+      {GRID.slice(1, 4).map((g) => <line x1={px(g)} y1={Y0} x2={px(g)} y2={Y0 + H} />)}
+    </g>
+
+    <!-- area A, between equality and the curve -->
+    <path d={areaA} fill="var(--s1)" fill-opacity="0.16" stroke="none" />
+
+    <g class="ax">
+      <line x1={X0} y1={Y0 + H} x2={X0 + W} y2={Y0 + H} />
+      <line x1={X0} y1={Y0} x2={X0} y2={Y0 + H} />
+    </g>
+
+    <g class="tick" text-anchor="middle">
+      {GRID.map((g) => (
+        <text x={px(g)} y={Y0 + H + 16}>{g === 0 ? '0' : g === 1 ? '1' : `.${String(g).slice(2)}`}</text>
+      ))}
+    </g>
+    <g class="tick" text-anchor="end">
+      {GRID.map((g) => (
+        <text x={X0 - 8} y={py(g) + 4}>{g === 0 ? '0' : g === 1 ? '1' : `.${String(g).slice(2)}`}</text>
+      ))}
+    </g>
+
+    <text class="alab" x={X0 + W / 2} y={Y0 + H + 38} text-anchor="middle">Cumulative population</text>
+    <text class="alab" x="14" y={Y0 + H / 2} text-anchor="middle" transform={`rotate(-90 14 ${Y0 + H / 2})`}>Cumulative income</text>
+
+    <!-- perfect equality reference -->
+    <line x1={px(0)} y1={py(0)} x2={px(1)} y2={py(1)}
+          stroke="var(--line-2)" stroke-width="1.5" stroke-dasharray="4 4" />
+    <text class="dlab" x="236" y="86" fill="var(--ink-2)" text-anchor="middle"
+          transform="rotate(-45 236 86)">perfect equality</text>
+
+    <!-- the Lorenz curve -->
+    <path class="ser draw" stroke="var(--s1)" stroke-width="2.5" d={line} style="--len:700;--d:120ms" />
+
+    <!-- region labels -->
+    <text class="dlab" x="150" y="150" fill="var(--muted)" text-anchor="middle">A</text>
+    <text class="dlab" x="248" y="236" fill="var(--muted)" text-anchor="middle">B</text>
+
+    <text class="dlab" x="96" y="60" fill="var(--muted)">Gini = A / (A+B)</text>
+    <rect x="96" y="74" width="12" height="3" rx="1.5" fill="var(--s1)" />
+    <text class="dlab" x="113" y="78" fill="var(--ink)">= {gini.toFixed(3)} here</text>
+  </svg>
+
+  <ul class="legend mt-3.5 list-none p-0">
+    <li class="inline-flex items-center gap-2"><i class="legend-swatch" style="background:var(--s1)"></i>Lorenz curve</li>
+    <li class="inline-flex items-center gap-2"><i class="legend-swatch" style="background:var(--line-2)"></i>Perfect equality</li>
+  </ul>
+
+  <figcaption class="text-sm mt-3" style="color:var(--muted);max-width:62ch">
+    <b style="color:var(--ink)">Method diagram.</b> It shows how Gini is derived from the curve, using
+    L(p) = p<sup>k</sup> so the shaded area and the quoted coefficient agree exactly. Per-country
+    curves are computed from the 2,400+ World Bank records in the notebook — none is asserted here.
+  </figcaption>
+</figure>

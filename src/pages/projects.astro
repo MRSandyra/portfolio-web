@@ -1,87 +1,131 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import ProjectCard from '../components/ProjectCard.astro';
+import { projects, CATEGORIES } from '../data/projects.js';
 
-const projects = [
-  {
-    title: 'Lung Disease Detection System (DenseNet-169)',
-    description: 'Multimodal deep learning system to detect 11 lung conditions from chest X-rays. Achieved AUC 0.7586 (+111.5% above baseline). Implemented two-phase fine-tuning, CLAHE preprocessing, and Weighted Focal Loss for class imbalance up to 15:1.',
-    tags: ['Python', 'DenseNet-169', 'TensorFlow', 'Keras', 'Medical Imaging', 'CLAHE'],
-    github: 'https://github.com/MRSandyra/Lung-Diagnosis-Web',
-    demo: '',
-    featured: true,
-  },
-  {
-    title: 'Anime Recommendation System',
-    description: 'Hybrid recommendation system that considers user preferences and cultural context to provide more personalized anime suggestions.',
-    tags: ['Python', 'Machine Learning', 'Recommendation System', 'Data Analysis'],
-    github: 'https://github.com/MRSandyra/anime-recommender',
-    demo: '',
-    featured: false,
-  },
-  {
-    title: 'Multi-Vector Cyber Attack Detection',
-    description: 'Built an anomaly detection system using regex pattern matching and IP profiling. Detects 11 attack categories (SQLi, XSS, DoS, Brute Force, Path Traversal, etc.) from Apache/Nginx logs. Automated pipeline from parsing to report generation.',
-    tags: ['Python', 'Regex', 'Pandas', 'Cybersecurity', 'Log Analysis', 'Anomaly Detection'],
-    github: 'https://github.com/MRSandyra/portfolio/tree/main/Cybersecurity%20Anomali%20Detection',
-    demo: '',
-    featured: false,
-  },
-  {
-    title: 'Sentiment Analysis on Tokopedia Reviews',
-    description: 'Built an NLP pipeline for product review classification. Performed text preprocessing (tokenization, stopword removal, stemming) and trained multiple classifiers using Scikit-learn. Evaluated with accuracy and confusion matrix.',
-    tags: ['Python', 'Scikit-learn', 'NLP', 'Pandas', 'NLTK', 'Sentiment Analysis'],
-    github: 'https://github.com/MRSandyra/portfolio/tree/main/Sentiment%20Analysis%20Tokopedia',
-    demo: '',
-    featured: false,
-  },
-  {
-    title: 'Global Income Inequality Analysis',
-    description: 'Analyzed 2,400+ country income distributions using World Bank data. Calculated Gini Coefficient, built Lorenz Curves, and simulated redistribution policies (subsidies & progressive taxation). Created interactive visualizations (choropleth map, time series).',
-    tags: ['Python', 'Pandas', 'Matplotlib', 'Plotly', 'Statistics', 'World Bank API'],
-    github: 'https://github.com/MRSandyra/portfolio/tree/main/Global%20Income%20Inequality%20-%20Visualizing%20Lorenz%20Curves%20%26%20Gini%20Coefficients',
-    demo: '',
-    featured: false,
-  },
-  {
-    title: 'IndoStock Analyzer',
-    description: 'Automated stock analysis tool for IDX stocks combining news sentiment, fundamental analysis, and technical indicators to generate data-driven investment recommendations.',
-    tags: ['Python', 'Selenium', 'TextBlob', 'yfinance', 'Pandas', 'NumPy'],
-    github: 'https://github.com/MRSandyra/portfolio/tree/main/IndoStock%20Analyzer',
-    demo: '',
-    featured: false,
-  },
-];
+const featured = projects.filter((p) => p.featured);
+const rest = projects.filter((p) => !p.featured);
+
+/* Only offer a filter for categories that actually have projects behind them. */
+const usable = CATEGORIES.filter((c) => projects.some((p) => p.categories.includes(c)));
 ---
 
-<Layout title="Projects" description="Data science, ML, and analytics projects by Muhammad Rizky Sandvyra">
-  <section class="pt-32 pb-20 px-6 max-w-6xl mx-auto">
-    <div class="mb-16">
-      <p class="section-label">Portfolio</p>
-      <h1 class="font-display text-5xl md:text-6xl text-navy-900 dark:text-white mb-4">
-        Selected <span class="italic text-indigo-600 dark:text-indigo-400">Projects</span>
+<Layout
+  title="Projects"
+  description="Twelve projects by Muhammad Rizky Sandyra across data engineering, machine learning, applied systems and analytics — governed pipelines on Airflow, Kafka, Spark and dbt, plus the models and dashboards built on them."
+  ogImage="/og/projects.png"
+>
+  <section class="shell band-lg">
+    <div class="max-w-prose">
+      <p class="eyebrow m-0 rv rv-up">Portfolio</p>
+      <h1 class="mt-4 mb-0 rv rv-wipe" style="--d:80ms;font-size:clamp(2.5rem,7vw,3.375rem);letter-spacing:-.03em">
+        Selected <em style="font-style:italic;color:var(--accent)">projects</em>
       </h1>
-      <p class="text-slate-500 dark:text-slate-400 max-w-xl leading-relaxed">
-        A selection of my work — from deep learning for medical imaging to anomaly detection and data analytics.
+      <p class="text-lg mt-6 mb-0 rv rv-up" style="--d:160ms;color:var(--muted);max-width:58ch">
+        Twelve systems across the data lifecycle — governed ingestion pipelines, the models
+        that run on them, and the analysis that comes out. Each card carries its own evidence
+        rather than a stock thumbnail, and says plainly where that evidence stops.
       </p>
     </div>
 
-    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {projects.map((project, i) => (
-        <div class={`observe-fade opacity-0-init animate-delay-${Math.min(i * 100, 500)}`}>
-          <ProjectCard {...project} />
+    <!-- filter -->
+    <div class="mt-10 rv rv-up" style="--d:220ms">
+      <div class="flex flex-wrap items-center gap-2.5" role="group" aria-label="Filter projects by category">
+        <button class="filter-btn" type="button" data-filter="all" aria-pressed="true">
+          All <span class="ml-1.5" style="opacity:.7">{projects.length}</span>
+        </button>
+        {usable.map((c) => (
+          <button class="filter-btn" type="button" data-filter={c} aria-pressed="false">
+            {c}
+            <span class="ml-1.5" style="opacity:.7">
+              {projects.filter((p) => p.categories.includes(c)).length}
+            </span>
+          </button>
+        ))}
+      </div>
+      <p
+        id="filter-status"
+        class="font-mono text-xs mt-4 mb-0"
+        style="color:var(--faint);letter-spacing:.04em"
+        role="status"
+        aria-live="polite"
+      >
+        Showing all {projects.length} projects
+      </p>
+    </div>
+  </section>
+
+  <!-- featured: asymmetric, full width each -->
+  <section class="shell" style="padding-bottom:clamp(2rem,5vw,3rem)">
+    <div class="flex flex-col gap-6" id="featured-group">
+      {featured.map((p, i) => (
+        <div class="rv rv-rise" data-item data-categories={p.categories.join('|')} style={`--d:${i * 90}ms`}>
+          <ProjectCard project={p} index={projects.indexOf(p)} variant="feature" />
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- the rest: standard grid -->
+  <section class="shell" style="padding-bottom:clamp(4rem,9vw,7.5rem)">
+    <div class="grid gap-6 md:grid-cols-2" id="grid-group">
+      {rest.map((p, i) => (
+        <div class="rv rv-rise flex" data-item data-categories={p.categories.join('|')} style={`--d:${i * 70}ms`}>
+          <ProjectCard project={p} index={projects.indexOf(p)} variant="grid" />
         </div>
       ))}
     </div>
 
-    <div class="mt-16 text-center observe-fade opacity-0-init">
-      <p class="text-slate-500 dark:text-slate-400 mb-4 font-mono text-sm">More on GitHub →</p>
-      <a href="https://github.com/MRSandyra/portfolio" target="_blank" rel="noopener" class="btn-primary">
-        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-          <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd"/>
+    <p id="empty-state" class="hidden text-center py-16 m-0" style="color:var(--muted)">
+      No projects in that category yet.
+    </p>
+
+    <div class="mt-14 text-center rv rv-up">
+      <p class="font-mono text-sm mb-4 m-0" style="color:var(--muted)">More on GitHub</p>
+      <a
+        href="https://github.com/MRSandyra/portfolio"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="btn btn-outline"
+      >
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
         </svg>
-        View All on GitHub
+        View all on GitHub
       </a>
     </div>
   </section>
 </Layout>
+
+<script>
+  const buttons = document.querySelectorAll<HTMLButtonElement>('[data-filter]');
+  const items = document.querySelectorAll<HTMLElement>('[data-item]');
+  const status = document.getElementById('filter-status');
+  const empty = document.getElementById('empty-state');
+
+  function apply(filter: string) {
+    let shown = 0;
+    items.forEach((el) => {
+      const cats = (el.dataset.categories || '').split('|');
+      const match = filter === 'all' || cats.includes(filter);
+      el.classList.toggle('hidden', !match);
+      if (match) shown++;
+    });
+
+    buttons.forEach((b) =>
+      b.setAttribute('aria-pressed', String(b.dataset.filter === filter))
+    );
+
+    if (status) {
+      status.textContent =
+        filter === 'all'
+          ? `Showing all ${shown} projects`
+          : `Showing ${shown} ${shown === 1 ? 'project' : 'projects'} in ${filter}`;
+    }
+    empty?.classList.toggle('hidden', shown > 0);
+  }
+
+  buttons.forEach((b) =>
+    b.addEventListener('click', () => apply(b.dataset.filter || 'all'))
+  );
+</script>

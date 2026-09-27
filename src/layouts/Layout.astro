@@ -6,48 +6,168 @@ import Footer from '../components/Footer.astro';
 export interface Props {
   title: string;
   description?: string;
+  ogImage?: string;
+  type?: string;
+  noindex?: boolean;
 }
 
-const { title, description = 'Data Scientist & Engineer Portfolio' } = Astro.props;
+const {
+  title,
+  description = 'Muhammad Rizky Sandyra — data engineer and data scientist. Governed pipelines on Airflow, Kafka, Spark and dbt, machine learning from medical imaging to streamed analytics, and dashboards that report their own gaps. From raw data to deployed intelligence.',
+  ogImage = '/og/default.png',
+  type = 'website',
+  noindex = false,
+} = Astro.props;
+
+const SITE = 'https://mrsandyra.netlify.app';
+const canonical = new URL(Astro.url.pathname, SITE).href.replace(/\/$/, '') || SITE;
+const ogUrl = new URL(ogImage, SITE).href;
+const fullTitle = `${title} — Muhammad Rizky Sandyra`;
+
+const person = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: 'Muhammad Rizky Sandyra',
+  url: SITE,
+  image: ogUrl,
+  jobTitle: ['Data Engineer', 'Data Scientist', 'Machine Learning Engineer', 'Data Analyst'],
+  description:
+    'Data engineer and data scientist working across the full data lifecycle: governed ingestion with lineage and data contracts, warehouse modelling guarded by tests, machine learning, and analytics delivery. From raw data to deployed intelligence.',
+  email: 'mailto:muhammadrizkysandyra26@gmail.com',
+  alumniOf: {
+    '@type': 'CollegeOrUniversity',
+    name: 'Universitas Negeri Padang',
+    sameAs: 'https://www.unp.ac.id/',
+  },
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: 'Padang',
+    addressRegion: 'West Sumatera',
+    addressCountry: 'ID',
+  },
+  knowsAbout: [
+    'Data Engineering',
+    'Data Pipelines',
+    'ELT',
+    'Data Quality',
+    'Data Governance',
+    'Stream Processing',
+    'Apache Airflow',
+    'Apache Kafka',
+    'Apache Spark',
+    'dbt',
+    'ClickHouse',
+    'DuckDB',
+    'MinIO',
+    'Redpanda',
+    'PostgreSQL',
+    'MongoDB',
+    'Docker',
+    'Machine Learning',
+    'Deep Learning',
+    'Natural Language Processing',
+    'Anomaly Detection',
+    'Medical Image Classification',
+    'Data Analysis',
+    'Data Visualization',
+    'Python',
+    'SQL',
+    'TensorFlow',
+    'scikit-learn',
+    'XGBoost',
+    'Pandas',
+  ],
+  sameAs: [
+    'https://github.com/MRSandyra',
+    'https://linkedin.com/in/mrizkysandyra',
+  ],
+};
 ---
 
 <!doctype html>
-<html lang="en" class="">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{fullTitle}</title>
     <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex,nofollow" />}
+
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <title>{title} — Muhammad Rizky Sandyra</title>
-    <meta name="theme-color" content="#0f0e2a" />
+    <meta name="theme-color" content="#FAF9F7" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0F0D0B" media="(prefers-color-scheme: dark)" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content={type} />
+    <meta property="og:site_name" content="Muhammad Rizky Sandyra" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={`${title} — Muhammad Rizky Sandyra`} />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogUrl} />
+    <meta name="twitter:image:alt" content={`${title} — Muhammad Rizky Sandyra`} />
+
+    <script type="application/ld+json" set:html={JSON.stringify(person)} />
+
+    <!-- Applied before first paint so the theme never flashes. -->
+    <script is:inline>
+      (function () {
+        var r = document.documentElement;
+        /* Only opt into scroll-reveal when JS can actually drive it, so a
+           failed script can never leave the page blank. */
+        if ('IntersectionObserver' in window) r.classList.add('js');
+        try {
+          var s = localStorage.getItem('theme');
+          var d = s === 'dark' || (!s && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          r.classList.toggle('dark', d);
+        } catch (e) {}
+      })();
+    </script>
   </head>
-  <body class="min-h-screen flex flex-col dark:bg-navy-950">
+
+  <body class="min-h-screen flex flex-col">
+    <a href="#main" class="skip-link">Skip to content</a>
     <Navbar />
-    <main class="flex-1">
+    <main id="main" class="flex-1" tabindex="-1">
       <slot />
     </main>
     <Footer />
 
     <script>
-      // Dark mode toggle persistence
-      const html = document.documentElement;
-      const stored = localStorage.getItem('theme');
-      if (stored === 'dark' || (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-        html.classList.add('dark');
+      /* Scroll reveal. One observer for the whole page; the variation lives in
+         CSS classes, and stagger comes from a --d custom property. */
+      const items = document.querySelectorAll<HTMLElement>('.rv');
+      if (items.length) {
+        const io = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((e) => {
+              if (e.isIntersecting) {
+                e.target.classList.add('in');
+                io.unobserve(e.target);
+              }
+            });
+          },
+          { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
+        );
+        items.forEach((el) => io.observe(el));
+
+        /* Safety net: anything still unrevealed shortly after load gets shown.
+           Covers the cases where the observer never reports an intersection -
+           a hidden/background render, print, or a restored bfcache page. */
+        window.setTimeout(() => {
+          items.forEach((el) => el.classList.add('in'));
+        }, 2500);
       }
-
-      // Scroll-triggered fade-in
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('animate-fade-up');
-            entry.target.classList.remove('opacity-0-init');
-            observer.unobserve(entry.target);
-          }
-        });
-      }, { threshold: 0.1 });
-
-      document.querySelectorAll('.observe-fade').forEach(el => observer.observe(el));
     </script>
   </body>
 </html>

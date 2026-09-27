@@ -1,0 +1,100 @@
+---
+/**
+ * PanganWatch coverage - MEASURED.
+ *
+ * Every figure is one the project records: 34 of 38 provinces in a typical
+ * month, only 8 in January 2026, and chilli absent from the source after
+ * May 2024. This chart exists to show the gaps rather than hide them - the
+ * coverage rule finding them is the point of the governance layer.
+ *
+ * Per the data-viz rules: one measure, so both bars take the same slot-1 hue;
+ * segments carry a 2px surface gap; labels wear ink tokens, never the series
+ * colour, with a swatch carrying identity.
+ */
+const TOTAL = 38;
+
+/* Ink for text sitting ON a series fill. It cannot be var(--ink), because in
+   dark mode that resolves to white and white on the orange bar is only 3.88:1.
+   This one value is mode-invariant and clears 4.5:1 against both bar colours:
+   5.63 on the light bar (#eb6834), 4.64 on the dark bar (#d95926).
+   It is the ash-900 step already in the palette, not a new colour. */
+const ON_FILL_INK = '#191613';
+
+
+const rows = [
+  { label: 'Typical month', covered: 34 },
+  { label: 'January 2026', covered: 8 },
+];
+
+const W = 360;
+const H = 176;
+const X0 = 116;        // left label column
+const BAR_W = 228;     // full 38 provinces
+const BAR_H = 26;
+const GAP = 2;         // surface gap between segments
+const R = 4;           // rounded data-end
+const scale = BAR_W / TOTAL;
+const rowY = (i: number) => 44 + i * 58;
+
+/** Bar with only the data-end (right) rounded, anchored to the baseline. */
+function endCap(x: number, y: number, w: number, h: number) {
+  const r = Math.min(R, w / 2);
+  return `M${x} ${y} L${x + w - r} ${y} Q${x + w} ${y} ${x + w} ${y + r} L${x + w} ${y + h - r} Q${x + w} ${y + h} ${x + w - r} ${y + h} L${x} ${y + h} Z`;
+}
+---
+
+<figure class="m-0 w-full">
+  <svg
+    class="chart"
+    viewBox={`0 0 ${W} ${H}`}
+    role="img"
+    aria-label={`Province coverage out of ${TOTAL}. A typical month covers 34 of 38 provinces. January 2026 covers only 8 of 38.`}
+  >
+    <text class="alab" x={X0} y="18" fill="var(--muted)">Provinces covered</text>
+    <text class="tick" x={X0 + BAR_W} y="18" text-anchor="end" style="fill:var(--faint)">of {TOTAL}</text>
+
+    <!-- baseline -->
+    <line class="ax" x1={X0} y1="26" x2={X0} y2={rowY(1) + BAR_H + 8} />
+
+    {rows.map((r, i) => {
+      const y = rowY(i);
+      const cw = r.covered * scale;
+      const missing = TOTAL - r.covered;
+      const mx = X0 + cw + GAP;
+      const mw = Math.max(0, missing * scale - GAP);
+      return (
+        <g>
+          <text class="tick" x={X0 - 12} y={y + BAR_H / 2 + 4} text-anchor="end" style="fill:var(--ink)"
+                style="font-size:11px">{r.label}</text>
+          {/* missing remainder, recessive */}
+          {mw > 0 && <path d={endCap(mx, y, mw, BAR_H)} fill="var(--line)" />}
+          {/* covered */}
+          <path d={endCap(X0, y, cw, BAR_H)} fill="var(--s1)" />
+          {/* direct label in ink, never in the series colour */}
+          <text class="dlab" x={X0 + cw - (cw > 60 ? 10 : -8)} y={y + BAR_H / 2 + 4}
+                text-anchor={cw > 60 ? 'end' : 'start'}
+                fill={cw > 60 ? ON_FILL_INK : 'var(--ink)'}>{r.covered}</text>
+          {/* Only label the gap when the gap itself is wide enough to hold the
+              text. Otherwise it overlaps the bar fill and drops to 1.8:1 - the
+              covered number and the caption already carry the figure. */}
+          {missing > 0 && mw > 62 && (
+            <text class="tick" x={X0 + BAR_W - 8} y={y + BAR_H / 2 + 4} text-anchor="end" style="fill:var(--ink-2)">
+              {missing} missing
+            </text>
+          )}
+        </g>
+      );
+    })}
+  </svg>
+
+  <ul class="legend mt-3.5 list-none p-0">
+    <li class="inline-flex items-center gap-2"><i class="legend-swatch" style="background:var(--s1)"></i>Reporting</li>
+    <li class="inline-flex items-center gap-2"><i class="legend-swatch" style="background:var(--line)"></i>No data</li>
+  </ul>
+
+  <figcaption class="text-sm mt-3" style="color:var(--muted);max-width:62ch">
+    <b style="color:var(--ink)">The gaps are the finding.</b> A coverage rule surfaced each one:
+    34 of 38 provinces in a typical month, only 8 in January 2026, and chilli missing from the
+    source entirely after May 2024. None of them is interpolated away.
+  </figcaption>
+</figure>

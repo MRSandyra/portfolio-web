@@ -1,93 +1,553 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..500&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ==========================================================================
+   TOKENS - one source. Roles resolve differently per mode; components only
+   ever reference roles, never raw hexes.
+   ========================================================================== */
 @layer base {
+  :root {
+    color-scheme: light;
+
+    --page: #FAF9F7;
+    --card: #FFFFFF;
+    --sunk: #F2F0EB;
+
+    --ink: #191613;
+    --ink-2: #2A2623;
+    --muted: #5C5651;
+    --faint: #6B655C;   /* was #7D776D - failed 4.5:1 on all 3 light surfaces */
+
+    --line: #E4E1DA;
+    --line-2: #CDC8BE;
+
+    --accent: #8E361C;        /* accent as TEXT - 7.41:1 on page */
+    --accent-solid: #B04525;  /* accent as FILL */
+    --accent-hover: #8E361C;
+    --accent-tint: #FAE4DB;
+    --accent-on-tint: #6E2A16;
+    --ring: #B04525;
+
+    --ok: #0ca30c;
+    --ok-text: #006300;
+    --warn: #fab219;
+    --crit: #d03b3b;
+
+    /* chart roles */
+    --s1: #eb6834;
+    --s2: #2a78d6;
+    --s3: #1baf7a;
+    --seq-1: #86b6ef;
+    --seq-2: #5598e7;
+    --seq-3: #2a78d6;
+    --seq-4: #1c5cab;
+    --seq-5: #104281;
+
+    --shadow-col: 28 20 14;
+
+    /* motion - "weighted settle": arrive, decelerate, stop. Never bounce. */
+    --ease: cubic-bezier(.16, 1, .3, 1);
+    --ease-io: cubic-bezier(.65, 0, .35, 1);
+    --dur-tap: 120ms;
+    --dur-ui: 200ms;
+    --dur-slow: 320ms;
+    --dur-reveal: 560ms;
+  }
+
+  .dark {
+    color-scheme: dark;
+
+    --page: #0F0D0B;
+    --card: #191613;
+    --sunk: #141210;
+
+    --ink: #FFFFFF;
+    --ink-2: #E4E1DA;
+    --muted: #A6A096;
+    --faint: #938D82;   /* was #7D776D - failed 4.5:1 on all 3 dark surfaces */
+
+    --line: #2A2623;
+    --line-2: #443F3A;
+
+    --accent: #EC9F84;        /* 9.11:1 on dark page */
+    --accent-solid: #B04525;  /* white text 5.64:1 - #CE5B34 gave only 4.06:1 */
+    --accent-hover: #C25430;  /* lighter on hover, white text still 4.56:1 */
+    --accent-tint: #4E1F11;
+    --accent-on-tint: #F4C6B4;
+    --ring: #E07C58;
+
+    --ok-text: #0ca30c;
+
+    --s1: #d95926;
+    --s2: #3987e5;
+    --s3: #199e70;
+    --seq-1: #cde2fb;
+    --seq-2: #9ec5f4;
+    --seq-3: #6da7ec;
+    --seq-4: #3987e5;
+    --seq-5: #184f95;
+
+    --shadow-col: 0 0 0;
+  }
+
   html {
     scroll-behavior: smooth;
   }
 
   body {
-    @apply bg-white text-slate-800 font-body antialiased;
-    transition: background-color 0.3s ease, color 0.3s ease;
+    background: var(--page);
+    color: var(--ink-2);
+    @apply font-body antialiased;
+    transition: background-color var(--dur-slow) var(--ease-io),
+                color var(--dur-slow) var(--ease-io);
   }
 
-  .dark body {
-    @apply bg-navy-950 text-slate-200;
+  h1, h2, h3, h4 {
+    @apply font-display font-normal;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* One consistent focus ring on every interactive element. */
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+  /* Only suppress the default ring where :focus-visible is supported. */
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  ::selection {
+    background: var(--accent-tint);
+    color: var(--accent-on-tint);
   }
 }
 
+/* ==========================================================================
+   COMPONENTS
+   ========================================================================== */
 @layer components {
+
+  /* --- skip link ------------------------------------------------------- */
+  .skip-link {
+    @apply absolute left-4 z-[100] inline-flex items-center px-4 font-medium text-sm;
+    top: -100px;
+    min-height: 44px;
+    background: var(--accent-solid);
+    color: #fff;
+    border-radius: 12px;
+    transition: top var(--dur-ui) var(--ease);
+  }
+  .skip-link:focus {
+    top: 1rem;
+  }
+
+  /* --- shell ------------------------------------------------------------ */
+  .shell {
+    @apply mx-auto w-full px-5 sm:px-6;
+    max-width: 72rem;
+  }
+  .shell-narrow {
+    @apply mx-auto w-full px-5 sm:px-6;
+    max-width: 58rem;
+  }
+
+  /* Vertical rhythm - generous, and deliberately asymmetric
+     (optical bottom weight), per the audit note on cramped spacing. */
+  .band {
+    padding-top: clamp(3.5rem, 8vw, 6.5rem);
+    padding-bottom: clamp(4rem, 9vw, 7.5rem);
+  }
+  .band-lg {
+    padding-top: clamp(4.5rem, 10vw, 8.5rem);
+    padding-bottom: clamp(5rem, 11vw, 9.5rem);
+  }
+  .band-tight {
+    padding-top: clamp(2.5rem, 5vw, 3.5rem);
+    padding-bottom: clamp(2.75rem, 5.5vw, 4rem);
+  }
+
+  /* --- eyebrow ---------------------------------------------------------- */
+  .eyebrow {
+    @apply font-mono text-xs font-medium uppercase flex items-center gap-2.5;
+    color: var(--accent);
+    letter-spacing: 0.14em;
+    line-height: 1;
+  }
+  .eyebrow::before {
+    content: '';
+    width: 22px;
+    height: 1px;
+    background: currentColor;
+    opacity: 0.6;
+    flex: none;
+  }
+  .eyebrow-plain::before {
+    display: none;
+  }
+
+  /* --- surfaces --------------------------------------------------------- */
+  .panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+  }
+  .panel-sunk {
+    background: var(--sunk);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+  }
+
+  /* --- buttons: three tiers, every one >= 44px tall --------------------- */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 font-medium text-sm no-underline;
+    min-height: 44px;
+    padding: 0 1.375rem;
+    border-radius: 12px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: background-color var(--dur-ui) var(--ease),
+                border-color var(--dur-ui) var(--ease),
+                color var(--dur-ui) var(--ease),
+                transform var(--dur-tap) var(--ease),
+                box-shadow var(--dur-ui) var(--ease);
+  }
+  .btn-primary {
+    background: var(--accent-solid);
+    color: #fff;
+    box-shadow: 0 1px 2px rgb(var(--shadow-col) / 0.18);
+  }
+  .btn-primary:hover {
+    background: var(--accent-hover);
+    box-shadow: 0 4px 14px -2px rgb(var(--shadow-col) / 0.22);
+  }
+  .btn-primary:active {
+    transform: translateY(1px) scale(0.99);
+  }
+  .btn-outline {
+    border-color: var(--line-2);
+    color: var(--ink);
+  }
+  .btn-outline:hover {
+    border-color: var(--ink);
+    background: var(--sunk);
+  }
+  .btn-outline:active {
+    transform: translateY(1px) scale(0.99);
+  }
+  .btn-link {
+    color: var(--accent);
+    padding: 0 2px;
+    gap: 7px;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 4px;
+  }
+  .btn-link svg {
+    transition: transform var(--dur-ui) var(--ease);
+  }
+  .btn-link:hover svg {
+    transform: translateX(4px);
+  }
+
+  /* --- nav -------------------------------------------------------------- */
   .nav-link {
-    @apply text-sm font-medium text-slate-500 hover:text-navy-800 dark:text-slate-400 dark:hover:text-white transition-colors duration-200 relative;
+    @apply relative inline-flex items-center font-medium text-sm;
+    min-height: 44px;
+    color: var(--muted);
+    transition: color var(--dur-ui) var(--ease);
   }
   .nav-link::after {
     content: '';
-    @apply absolute -bottom-0.5 left-0 w-0 h-px bg-navy-700 dark:bg-indigo-400 transition-all duration-300;
+    @apply absolute left-0 w-0;
+    bottom: 10px;
+    height: 1.5px;
+    background: var(--accent-solid);
+    transition: width var(--dur-slow) var(--ease);
+  }
+  .nav-link:hover {
+    color: var(--ink);
   }
   .nav-link:hover::after,
-  .nav-link.active::after {
+  .nav-link[aria-current='page']::after {
     @apply w-full;
   }
-  .nav-link.active {
-    @apply text-navy-800 dark:text-white;
+  .nav-link[aria-current='page'] {
+    color: var(--ink);
   }
 
-  .badge {
-    @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-mono font-medium
-           bg-slate-100 text-slate-700 border border-slate-200
-           dark:bg-navy-800 dark:text-indigo-300 dark:border-navy-700
-           transition-all duration-200 hover:scale-105;
+  /* --- icon button: 44px hit area, smaller visual ---------------------- */
+  .icon-btn {
+    @apply inline-flex items-center justify-center;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    color: var(--muted);
+    transition: background-color var(--dur-ui) var(--ease),
+                color var(--dur-ui) var(--ease),
+                transform var(--dur-tap) var(--ease);
+  }
+  .icon-btn:hover {
+    background: var(--sunk);
+    color: var(--ink);
+  }
+  .icon-btn:active {
+    transform: scale(0.94);
   }
 
-  .section-label {
-    @apply text-xs font-mono font-medium tracking-widest uppercase text-indigo-500 dark:text-indigo-400 mb-3;
+  /* --- chips ------------------------------------------------------------ */
+  .chip {
+    @apply inline-flex items-center font-mono font-medium;
+    font-size: 11px;
+    line-height: 1;
+    padding: 6px 9px;
+    border-radius: 6px;
+    border: 1px solid var(--line);
+    color: var(--muted);
+    background: var(--page);
+  }
+  .chip-accent {
+    @apply inline-flex items-center font-mono font-semibold uppercase;
+    font-size: 10px;
+    line-height: 1;
+    letter-spacing: 0.12em;
+    padding: 5px 8px;
+    border-radius: 6px;
+    background: var(--accent-tint);
+    color: var(--accent-on-tint);
+    border: 0;
   }
 
-  .card {
-    @apply bg-white border border-slate-200 rounded-2xl overflow-hidden
-           dark:bg-navy-900 dark:border-navy-700
-           transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
+  /* --- filter control --------------------------------------------------- */
+  .filter-btn {
+    @apply inline-flex items-center font-mono font-medium text-xs;
+    min-height: 44px;
+    padding: 0 14px;
+    border-radius: 999px;
+    border: 1px solid var(--line-2);
+    color: var(--muted);
+    background: transparent;
+    cursor: pointer;
+    letter-spacing: 0.04em;
+    transition: background-color var(--dur-ui) var(--ease),
+                border-color var(--dur-ui) var(--ease),
+                color var(--dur-ui) var(--ease),
+                transform var(--dur-tap) var(--ease);
+  }
+  .filter-btn:hover {
+    border-color: var(--ink);
+    color: var(--ink);
+  }
+  .filter-btn:active {
+    transform: scale(0.97);
+  }
+  .filter-btn[aria-pressed='true'] {
+    background: var(--accent-solid);
+    border-color: var(--accent-solid);
+    color: #fff;
   }
 
-  .btn-primary {
-    @apply inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium
-           bg-navy-800 text-white hover:bg-navy-700
-           dark:bg-indigo-600 dark:hover:bg-indigo-500
-           transition-all duration-200 shadow-sm hover:shadow-md;
+  /* --- KPI tiles: metrics lifted out of prose -------------------------- */
+  .kpis {
+    @apply grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .kpi {
+    background: var(--card);
+    padding: 13px 14px;
+    min-width: 0;
+  }
+  .kpi-v {
+    @apply block font-display;
+    color: var(--ink);
+    font-size: 1.5rem;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+  }
+  .kpi-d {
+    @apply font-mono font-semibold;
+    font-size: 11px;
+    color: var(--ok-text);
+    letter-spacing: 0;
+    margin-left: 5px;
+  }
+  .kpi-l {
+    @apply block font-mono font-medium uppercase;
+    font-size: 10px;
+    line-height: 1.4;
+    letter-spacing: 0.07em;
+    color: var(--faint);
+    margin-top: 5px;
   }
 
-  .btn-outline {
-    @apply inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium
-           border border-slate-300 text-slate-700 hover:border-navy-800 hover:text-navy-800
-           dark:border-navy-600 dark:text-slate-300 dark:hover:border-indigo-400 dark:hover:text-indigo-400
-           transition-all duration-200;
+  /* --- form ------------------------------------------------------------- */
+  .field {
+    @apply block w-full font-body text-base;
+    /* Inputs and textareas carry an intrinsic minimum width that, combined with
+       grid's default min-width:auto, pushes the column past the viewport at
+       320px. These two lines are what stop that. */
+    min-width: 0;
+    max-width: 100%;
+    min-height: 48px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid var(--line-2);
+    background: var(--card);
+    color: var(--ink);
+    transition: border-color var(--dur-ui) var(--ease),
+                box-shadow var(--dur-ui) var(--ease);
+  }
+  .field::placeholder {
+    color: var(--faint);
+  }
+  .field:hover {
+    border-color: var(--muted);
+  }
+  .field:focus {
+    outline: none;
+    border-color: var(--accent-solid);
+    box-shadow: 0 0 0 3px rgb(176 69 37 / 0.16);
+  }
+  .field[aria-invalid='true'] {
+    border-color: var(--crit);
+  }
+  .field-label {
+    @apply block font-mono font-medium uppercase;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 7px;
+  }
+  .field-error {
+    @apply font-medium text-sm;
+    color: var(--crit);
+    margin-top: 6px;
+  }
+
+  /* --- chart chrome ----------------------------------------------------- */
+  .chart {
+    @apply block w-full h-auto;
+    overflow: visible;
+  }
+  .chart .gr {
+    stroke: var(--line);
+    stroke-width: 1;
+  }
+  .chart .ax {
+    stroke: var(--line-2);
+    stroke-width: 1;
+  }
+  .chart .tick {
+    @apply font-mono font-medium;
+    font-size: 10px;
+    fill: var(--faint);
+  }
+  .chart .alab {
+    @apply font-mono font-medium uppercase;
+    font-size: 10px;
+    fill: var(--muted);
+    letter-spacing: 0.08em;
+  }
+  .chart .ser {
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .chart .dlab {
+    @apply font-mono font-semibold;
+    font-size: 11px;
+  }
+  .legend {
+    @apply flex flex-wrap font-mono font-medium text-xs;
+    gap: 8px 18px;
+    color: var(--muted);
+  }
+  .legend-swatch {
+    @apply block;
+    width: 14px;
+    height: 3px;
+    border-radius: 2px;
+    flex: none;
   }
 }
 
-/* Animated underline for headings */
-.heading-accent {
-  position: relative;
-  display: inline-block;
+/* ==========================================================================
+   MOTION - scroll reveal. Varies by content type instead of one uniform fade.
+   ========================================================================== */
+/* Gated behind `.js`, which the inline head script adds before first paint.
+   Without JavaScript - or if the observer never fires - content simply shows.
+   Nothing is ever hidden by a script that might not run. */
+.js .rv {
+  opacity: 0;
+  will-change: opacity, transform;
 }
-.heading-accent::after {
-  content: '';
-  position: absolute;
-  bottom: -4px;
-  left: 0;
-  width: 100%;
-  height: 3px;
-  background: linear-gradient(90deg, #4f46e5, #818cf8);
-  border-radius: 2px;
+.js .rv-up    { transform: translateY(14px); }
+.js .rv-rise  { transform: translateY(22px); }
+.js .rv-scale { transform: scale(0.965); }
+.js .rv-wipe  { clip-path: inset(0 0 100% 0); transform: translateY(8px); }
+
+.js .rv.in {
+  opacity: 1;
+  transform: none;
+  clip-path: inset(0 0 -10% 0);
+  transition: opacity var(--dur-reveal) var(--ease),
+              transform var(--dur-reveal) var(--ease),
+              clip-path var(--dur-reveal) var(--ease);
+  transition-delay: var(--d, 0ms);
 }
 
-/* Staggered animation helpers */
-.animate-delay-100 { animation-delay: 100ms; }
-.animate-delay-200 { animation-delay: 200ms; }
-.animate-delay-300 { animation-delay: 300ms; }
-.animate-delay-400 { animation-delay: 400ms; }
-.animate-delay-500 { animation-delay: 500ms; }
+/* Chart stroke draw-on - gated for the same reason. */
+.js .draw {
+  stroke-dasharray: var(--len, 1200);
+  stroke-dashoffset: var(--len, 1200);
+}
+.js .in .draw,
+.js .draw.in {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 1100ms var(--ease);
+  transition-delay: var(--d, 120ms);
+}
 
-.opacity-0-init { opacity: 0; }
+/* ==========================================================================
+   REDUCED MOTION - one block, covers every animation and transition.
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+  .rv,
+  .js .rv {
+    opacity: 1 !important;
+    transform: none !important;
+    clip-path: none !important;
+  }
+  .draw,
+  .js .draw {
+    stroke-dashoffset: 0 !important;
+  }
+}

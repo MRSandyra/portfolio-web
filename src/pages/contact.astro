@@ -1,87 +1,268 @@
 ---
 import Layout from '../layouts/Layout.astro';
 
-const contacts = [
+const channels = [
   {
     label: 'Email',
     value: 'muhammadrizkysandyra26@gmail.com',
     href: 'mailto:muhammadrizkysandyra26@gmail.com',
-    description: 'Best for project inquiries and job opportunities.',
-    icon: `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/>
-    </svg>`,
+    note: 'Best for roles and project enquiries.',
   },
   {
     label: 'LinkedIn',
     value: 'linkedin.com/in/mrizkysandyra',
     href: 'https://linkedin.com/in/mrizkysandyra',
-    description: 'Connect professionally and see my career journey.',
-    icon: `<svg fill="currentColor" viewBox="0 0 24 24">
-      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-    </svg>`,
+    note: 'Career history and professional context.',
   },
   {
     label: 'GitHub',
     value: 'github.com/MRSandyra',
     href: 'https://github.com/MRSandyra',
-    description: 'Explore my open-source projects and code.',
-    icon: `<svg fill="currentColor" viewBox="0 0 24 24">
-      <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd"/>
-    </svg>`,
+    note: 'Source for every project on this site.',
   },
 ];
 ---
 
-<Layout title="Contact" description="Get in touch with Muhammad Rizky Sandyra">
-  <section class="pt-32 pb-20 px-6 max-w-5xl mx-auto">
-    <div class="max-w-2xl mb-20">
-      <p class="section-label">Get in Touch</p>
-      <h1 class="font-display text-5xl md:text-6xl text-navy-900 dark:text-white mb-6">
-        Let's <span class="italic text-indigo-600 dark:text-indigo-400">Connect</span>
+<Layout
+  title="Contact"
+  description="Get in touch with Muhammad Rizky Sandyra — available for data science, machine learning and analytics roles, remote or based in Indonesia."
+  ogImage="/og/contact.png"
+>
+  <section class="shell band-lg">
+    <div class="max-w-prose">
+      <p class="eyebrow m-0 rv rv-up">Get in touch</p>
+      <h1 class="mt-4 mb-0 rv rv-wipe" style="--d:80ms;font-size:clamp(2.5rem,7vw,3.375rem);letter-spacing:-.03em">
+        Let's <em style="font-style:italic;color:var(--accent)">connect</em>
       </h1>
-      <p class="text-slate-500 dark:text-slate-400 text-lg leading-relaxed">
-        I'm actively looking for full-time roles in data science, machine learning, and data analytics. Feel free to reach out — I'd love to discuss opportunities or collaborations.
+      <p class="text-lg mt-6 mb-0 rv rv-up" style="--d:160ms;color:var(--muted);max-width:56ch">
+        I'm looking for full-time work in data science, machine learning and analytics.
+        Send a message below, or reach me directly on any of these.
       </p>
     </div>
 
-    <div class="grid sm:grid-cols-2 gap-5 mb-16">
-      {contacts.map((contact, i) => (
-        <a
-          href={contact.href}
-          target={contact.href.startsWith('mailto') ? '_self' : '_blank'}
-          rel="noopener"
-          class={`group card p-6 flex gap-5 items-start no-underline observe-fade opacity-0-init animate-delay-${i * 100}`}
+    <div class="grid gap-10 lg:gap-14 mt-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.85fr)] items-start">
+      <!-- ============ FORM ============ -->
+      <div class="rv rv-rise min-w-0">
+        <form
+          id="contact-form"
+          name="contact"
+          method="POST"
+          data-netlify="true"
+          netlify-honeypot="bot-field"
+          novalidate
+          class="panel p-6 sm:p-8"
         >
-          <div class="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center flex-shrink-0 group-hover:bg-indigo-600 group-hover:text-white dark:group-hover:bg-indigo-600 transition-all duration-300">
-            <div class="w-6 h-6" set:html={contact.icon}></div>
-          </div>
-          <div class="flex-1 min-w-0">
-            <p class="text-xs font-mono font-medium text-indigo-500 dark:text-indigo-400 mb-1 uppercase tracking-wider">{contact.label}</p>
-            <p class="font-medium text-navy-900 dark:text-white truncate mb-1 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
-              {contact.value}
-            </p>
-            <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">{contact.description}</p>
-          </div>
-          <svg class="w-5 h-5 text-slate-300 dark:text-slate-600 group-hover:text-indigo-500 group-hover:translate-x-1 group-hover:-translate-y-1 transition-all duration-200 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-          </svg>
-        </a>
-      ))}
-    </div>
-
-    <div class="observe-fade opacity-0-init rounded-2xl border border-emerald-200 dark:border-emerald-900/50 bg-emerald-50 dark:bg-emerald-950/30 p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-      <div class="flex items-start gap-4">
-        <div class="w-3 h-3 rounded-full bg-emerald-500 mt-1.5 animate-pulse flex-shrink-0"></div>
-        <div>
-          <p class="font-medium text-emerald-800 dark:text-emerald-400 mb-1">Open to Work</p>
-          <p class="text-sm text-emerald-700 dark:text-emerald-500 leading-relaxed">
-            Available for full-time roles, freelance projects, and research collaborations. Remote or based in Indonesia.
+          <input type="hidden" name="form-name" value="contact" />
+          <p class="hidden">
+            <label>Leave this field empty: <input name="bot-field" tabindex="-1" autocomplete="off" /></label>
           </p>
+
+          <div class="flex flex-col gap-5">
+            <div>
+              <label class="field-label" for="name">Name</label>
+              <input class="field" id="name" name="name" type="text" required autocomplete="name" placeholder="Your name" />
+              <p class="field-error hidden" data-error-for="name"></p>
+            </div>
+
+            <div>
+              <label class="field-label" for="email">Email</label>
+              <input class="field" id="email" name="email" type="email" required autocomplete="email" placeholder="you@company.com" />
+              <p class="field-error hidden" data-error-for="email"></p>
+            </div>
+
+            <div>
+              <label class="field-label" for="message">Message</label>
+              <textarea class="field" id="message" name="message" rows="5" required placeholder="What would you like to talk about?" style="min-height:130px;resize:vertical"></textarea>
+              <p class="field-error hidden" data-error-for="message"></p>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-4 pt-1">
+              <button class="btn btn-primary" type="submit" id="submit-btn">
+                <span id="submit-label">Send message</span>
+                <svg id="submit-spinner" class="w-4 h-4 hidden" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2.5" opacity="0.28" />
+                  <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                    <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="0.8s" repeatCount="indefinite" />
+                  </path>
+                </svg>
+              </button>
+              <p class="font-mono text-xs m-0" style="color:var(--faint)">Usually replies within a day.</p>
+            </div>
+          </div>
+
+          <!-- form-level states -->
+          <div
+            id="form-success"
+            class="hidden mt-6 p-4 rounded-m"
+            style="background:color-mix(in srgb, var(--ok) 10%, transparent);border:1px solid color-mix(in srgb, var(--ok) 40%, transparent)"
+            role="status"
+          >
+            <p class="m-0 font-medium text-sm" style="color:var(--ok-text)">
+              Message sent. I'll get back to you at the address you gave.
+            </p>
+          </div>
+
+          <div
+            id="form-error"
+            class="hidden mt-6 p-4 rounded-m"
+            style="background:color-mix(in srgb, var(--crit) 10%, transparent);border:1px solid color-mix(in srgb, var(--crit) 40%, transparent)"
+            role="alert"
+          >
+            <p class="m-0 font-medium text-sm" style="color:var(--crit)">
+              The message didn't send. Please try again, or email me directly at
+              <a href="mailto:muhammadrizkysandyra26@gmail.com" style="color:inherit">muhammadrizkysandyra26@gmail.com</a>.
+            </p>
+          </div>
+        </form>
+      </div>
+
+      <!-- ============ CHANNELS ============ -->
+      <div class="rv rv-up min-w-0" style="--d:120ms">
+        <div style="border-top:1px solid var(--line)">
+          {channels.map((c) => (
+            <a
+              href={c.href}
+              target={c.href.startsWith('mailto') ? '_self' : '_blank'}
+              rel="noopener noreferrer"
+              class="group flex items-start justify-between gap-5 py-5 no-underline"
+              style="border-bottom:1px solid var(--line)"
+            >
+              <div class="min-w-0">
+                <p class="font-mono text-xs font-medium uppercase m-0" style="color:var(--accent);letter-spacing:.12em">{c.label}</p>
+                <p class="font-medium mt-1.5 mb-0 truncate" style="color:var(--ink)">{c.value}</p>
+                <p class="text-sm mt-1 mb-0" style="color:var(--muted)">{c.note}</p>
+              </div>
+              <svg
+                class="w-4 h-4 flex-none mt-1"
+                style="color:var(--faint);transition:transform var(--dur-ui) var(--ease),color var(--dur-ui) var(--ease)"
+                fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" d="M7 17L17 7M17 7H9M17 7v8" />
+              </svg>
+            </a>
+          ))}
+        </div>
+
+        <div
+          class="mt-8 p-5 rounded-l flex items-start gap-3.5"
+          style="background:color-mix(in srgb, var(--ok) 8%, transparent);border:1px solid color-mix(in srgb, var(--ok) 35%, transparent)"
+        >
+          <span aria-hidden="true" class="flex-none" style="width:8px;height:8px;border-radius:99px;background:var(--ok);margin-top:7px"></span>
+          <div>
+            <p class="font-medium m-0 text-sm" style="color:var(--ok-text)">Open to work</p>
+            <p class="text-sm mt-1 mb-0" style="color:var(--muted)">
+              Full-time roles, freelance projects and research collaboration. Remote, or based in Indonesia.
+            </p>
+          </div>
         </div>
       </div>
-      <a href="mailto:muhammadrizkysandyra26@gmail.com" class="btn-primary bg-emerald-700 hover:bg-emerald-600 dark:bg-emerald-700 dark:hover:bg-emerald-600 flex-shrink-0">
-        Send Email
-      </a>
     </div>
   </section>
 </Layout>
+
+<style>
+  .group:hover svg {
+    transform: translate(3px, -3px);
+    color: var(--accent);
+  }
+</style>
+
+<script>
+  const form = document.getElementById('contact-form') as HTMLFormElement | null;
+  const btn = document.getElementById('submit-btn') as HTMLButtonElement | null;
+  const label = document.getElementById('submit-label');
+  const spinner = document.getElementById('submit-spinner');
+  const okBox = document.getElementById('form-success');
+  const errBox = document.getElementById('form-error');
+
+  const RULES: Record<string, (v: string) => string | null> = {
+    name: (v) => (v.trim().length < 2 ? 'Please enter your name.' : null),
+    email: (v) =>
+      !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim())
+        ? 'Please enter a valid email address.'
+        : null,
+    message: (v) =>
+      v.trim().length < 10 ? 'Please write at least 10 characters.' : null,
+  };
+
+  function showError(field: HTMLInputElement | HTMLTextAreaElement, msg: string | null) {
+    const box = document.querySelector<HTMLElement>(`[data-error-for="${field.name}"]`);
+    if (!box) return;
+    if (msg) {
+      box.textContent = msg;
+      box.classList.remove('hidden');
+      field.setAttribute('aria-invalid', 'true');
+      field.setAttribute('aria-describedby', `err-${field.name}`);
+      box.id = `err-${field.name}`;
+    } else {
+      box.classList.add('hidden');
+      field.removeAttribute('aria-invalid');
+      field.removeAttribute('aria-describedby');
+    }
+  }
+
+  function validate(field: HTMLInputElement | HTMLTextAreaElement): boolean {
+    const rule = RULES[field.name];
+    if (!rule) return true;
+    const msg = rule(field.value);
+    showError(field, msg);
+    return !msg;
+  }
+
+  /* Validate on blur, then live-correct once a field has been touched. */
+  Object.keys(RULES).forEach((n) => {
+    const f = form?.elements.namedItem(n) as HTMLInputElement | null;
+    if (!f) return;
+    f.addEventListener('blur', () => validate(f));
+    f.addEventListener('input', () => {
+      if (f.getAttribute('aria-invalid') === 'true') validate(f);
+    });
+  });
+
+  function setLoading(on: boolean) {
+    if (!btn) return;
+    btn.disabled = on;
+    btn.style.opacity = on ? '0.75' : '';
+    btn.style.cursor = on ? 'wait' : '';
+    if (label) label.textContent = on ? 'Sending' : 'Send message';
+    spinner?.classList.toggle('hidden', !on);
+  }
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    okBox?.classList.add('hidden');
+    errBox?.classList.add('hidden');
+
+    const fields = Object.keys(RULES)
+      .map((n) => form.elements.namedItem(n) as HTMLInputElement)
+      .filter(Boolean);
+
+    let firstBad: HTMLElement | null = null;
+    fields.forEach((f) => {
+      if (!validate(f) && !firstBad) firstBad = f;
+    });
+    if (firstBad) {
+      (firstBad as HTMLElement).focus();
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const body = new URLSearchParams(new FormData(form) as any).toString();
+      const res = await fetch('/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body,
+      });
+      if (!res.ok) throw new Error(String(res.status));
+      form.reset();
+      okBox?.classList.remove('hidden');
+      okBox?.scrollIntoView({ block: 'nearest' });
+    } catch {
+      errBox?.classList.remove('hidden');
+      errBox?.scrollIntoView({ block: 'nearest' });
+    } finally {
+      setLoading(false);
+    }
+  });
+</script>

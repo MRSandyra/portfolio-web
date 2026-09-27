@@ -1,0 +1,78 @@
+---
+/**
+ * Specimen plate - replaces the "MR" gradient-initials circle.
+ *
+ * An 11x11 confusion-matrix structure, one cell per thoracic class from the
+ * DenseNet-169 project: diagonal-dominant, off-diagonal confusion decaying
+ * with class distance. Generated here in the frontmatter, so it ships as
+ * static markup and costs zero client-side JavaScript.
+ *
+ * It encodes the SHAPE of a classifier's output, not specific measured counts,
+ * and the caption says so.
+ */
+export interface Props {
+  size?: number;
+  showCaption?: boolean;
+  class?: string;
+}
+
+const { size = 11, showCaption = true, class: klass = '' } = Astro.props;
+
+const CELL = 20;
+const INSET = 1;
+const extent = size * CELL;
+
+/* Stable integer hash so the plate is identical on every build. */
+function h(i: number, j: number): number {
+  let x = (i * 73856093) ^ (j * 19349663);
+  x = (x ^ (x >>> 13)) * 1274126177;
+  return ((x ^ (x >>> 16)) >>> 0) / 4294967296;
+}
+
+const cells: { x: number; y: number; o: number }[] = [];
+for (let i = 0; i < size; i++) {
+  for (let j = 0; j < size; j++) {
+    const d = Math.abs(i - j);
+    const o =
+      d === 0
+        ? 0.78 + 0.22 * h(i, j)
+        : Math.max(0.04, (0.3 / (d * d)) * (0.45 + 0.9 * h(i, j)));
+    cells.push({
+      x: j * CELL + INSET,
+      y: i * CELL + INSET,
+      o: Number(o.toFixed(3)),
+    });
+  }
+}
+---
+
+<figure class={`m-0 ${klass}`}>
+  <svg
+    class="block w-full h-auto rounded-m"
+    style="background:var(--sunk);border:1px solid var(--line)"
+    viewBox={`0 0 ${extent} ${extent}`}
+    role="img"
+    aria-label={`Specimen plate: an ${size} by ${size} confusion-matrix structure from the DenseNet-169 thoracic classifier, with a dominant diagonal and confusion decaying away from it.`}
+  >
+    {cells.map((c) => (
+      <rect
+        x={c.x}
+        y={c.y}
+        width={CELL - 2 * INSET}
+        height={CELL - 2 * INSET}
+        rx="2"
+        fill="var(--s1)"
+        fill-opacity={c.o}
+      />
+    ))}
+  </svg>
+  {showCaption && (
+    <figcaption
+      class="flex justify-between gap-3 mt-3 font-mono"
+      style="font-size:11px;line-height:1.5;color:var(--faint);letter-spacing:.04em"
+    >
+      <span><b class="font-medium" style="color:var(--muted)">PLATE 01</b> — densenet-169</span>
+      <span>{size}&times;{size} · structure</span>
+    </figcaption>
+  )}
+</figure>

@@ -1,116 +1,233 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import SpecimenPlate from '../components/SpecimenPlate.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import { featuredProjects, projects } from '../data/projects.js';
 
-const techStack = [
-  { name: 'Python', icon: '🐍' },
-  { name: 'SQL', icon: '🗄️' },
-  { name: 'Pandas', icon: '🐼' },
-  { name: 'NumPy', icon: '🔢' },
-  { name: 'Scikit-learn', icon: '🤖' },
-  { name: 'TensorFlow', icon: '🧠' },
-  { name: 'Keras', icon: '🔧' },
-  { name: 'DenseNet', icon: '🖼️' },
-  { name: 'Laravel', icon: '⚡' },
-  { name: 'PHP', icon: '🐘' },
-  { name: 'Regex', icon: '📝' },
-  { name: 'PostgreSQL', icon: '🐘' },
-  { name: 'Git', icon: '📦' },
-  { name: 'Docker', icon: '🐳' },
-];
-
+/* Every figure below is traceable to a project on this site.
+   159 blocking dbt tests = 134 PanganWatch + 14 Fraud + 11 Jakarta. */
 const stats = [
-  { value: '4+', label: 'ML Projects' },
-  { value: '2', label: 'Industry Internships' },
-  { value: '2,400+', label: 'Data Points Analyzed' },
-  { value: '11', label: 'Attack Classes Detected' },
+  { value: '6.36M', label: 'Transactions processed' },
+  { value: '311K', label: 'Events streamed, never loaded' },
+  { value: '159', label: 'dbt tests blocking pipelines' },
+  { value: '12', label: 'End-to-end projects' },
 ];
+
+/* The spine: one job title does not cover this, the lifecycle does. */
+const lifecycle = [
+  'Ingestion',
+  'Cleaning & features',
+  'Modelling',
+  'Interpretation',
+  'Deployment',
+];
+
+const roles = ['Data Engineer', 'Data Scientist', 'ML Engineer', 'Data Analyst'];
+
+/* Same spec-sheet treatment as before, widened to cover the data engineering
+   stack that the site previously left out entirely. Every tool here appears in
+   a project on this site. */
+const toolbox = [
+  { group: 'Languages', items: ['Python', 'SQL', 'PHP'] },
+  { group: 'Orchestration & streaming', items: ['Airflow', 'Kafka', 'Redpanda', 'Spark'] },
+  { group: 'Storage & warehouse', items: ['PostgreSQL', 'MongoDB', 'ClickHouse', 'DuckDB', 'MinIO'] },
+  { group: 'Transformation & quality', items: ['dbt', 'Pydantic', 'Pandas', 'NumPy', 'Regex'] },
+  { group: 'ML & deep learning', items: ['TensorFlow', 'Keras', 'Scikit-learn', 'XGBoost', 'SHAP', 'DenseNet-169'] },
+  { group: 'Visualization', items: ['Tableau', 'Superset', 'Metabase', 'Streamlit', 'Plotly', 'Seaborn'] },
+  { group: 'Web & ops', items: ['Laravel', 'Docker', 'Git', 'pytest'] },
+];
+
+let n = 0;
+const numbered = toolbox.map((g) => ({
+  ...g,
+  items: g.items.map((name) => ({ name, i: String(++n).padStart(2, '0') })),
+}));
 ---
 
-<Layout title="Home" description="Muhammad Rizky Sandyra — Data Scientist, ML Engineer & Analyst">
-  <!-- Hero -->
-  <section class="pt-32 pb-20 px-6 max-w-6xl mx-auto">
-    <div class="grid md:grid-cols-2 gap-16 items-center">
-      <!-- Text -->
+<Layout
+  title="Home"
+  description="Muhammad Rizky Sandyra — data engineer and data scientist. Governed pipelines on Airflow, Kafka, Spark and dbt; machine learning from chest X-ray classification to streamed match analytics. From raw data to deployed intelligence."
+>
+  <!-- ============ HERO ============ -->
+  <section class="shell band-lg">
+    <div class="grid gap-10 lg:gap-14 items-end lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
       <div>
-        <p class="section-label animate-fade-up">Available for opportunities</p>
-        <h1 class="font-display text-5xl md:text-6xl lg:text-7xl text-navy-900 dark:text-white leading-tight mb-6 animate-fade-up animate-delay-100">
-          Muhammad<br/>
-          <span class="block text-indigo-600 dark:text-indigo-400 italic">Rizky Sandyra</span>
-        </h1>
-        <div class="flex items-center gap-3 mb-6 animate-fade-up animate-delay-200">
-          <div class="h-px w-12 bg-indigo-500"></div>
-          <p class="font-mono text-sm font-medium text-indigo-600 dark:text-indigo-400 tracking-wide">
-            Data Scientist · ML Engineer · Data Analyst
-          </p>
-        </div>
-        <p class="text-slate-600 dark:text-slate-300 text-lg leading-relaxed mb-8 max-w-lg animate-fade-up animate-delay-300">
-          Fresh graduate in Informatics with hands-on experience building end-to-end machine learning systems — from deep learning for medical imaging to anomaly detection for cybersecurity.
+        <p class="font-mono text-xs uppercase flex items-center gap-3 flex-wrap m-0 rv rv-up"
+           style="letter-spacing:.14em;line-height:1">
+          <span style="color:var(--faint)">01 / Padang, ID</span>
+          <span class="inline-flex items-center gap-1.5 font-medium" style="color:var(--ok-text)">
+            <span aria-hidden="true" style="width:6px;height:6px;border-radius:99px;background:var(--ok);display:block"></span>
+            Open to work
+          </span>
         </p>
-        <div class="flex flex-wrap gap-3 animate-fade-up animate-delay-400">
-          <a href="/projects" class="btn-primary">View Projects</a>
-          <a href="/resume" class="btn-outline">Download CV</a>
+
+        <h1
+          class="mt-5 mb-0 rv rv-wipe"
+          style="--d:80ms;font-size:clamp(2.75rem,8.2vw,4.125rem);letter-spacing:-.03em;line-height:1.04"
+        >
+          Muhammad<em class="block not-italic" style="font-style:italic;color:var(--accent)">Rizky Sandyra</em>
+        </h1>
+
+        <ul
+          class="flex flex-wrap list-none m-0 mt-7 p-0 rv rv-up"
+          style="--d:160ms;border-top:1px solid var(--line);border-bottom:1px solid var(--line)"
+        >
+          {roles.map((r, i) => (
+            <li
+              class="flex items-center gap-2.5 font-mono text-xs font-medium uppercase whitespace-nowrap"
+              style={`flex:1 1 auto;padding:12px 16px 12px ${i === 0 ? '0' : '16px'};letter-spacing:.06em;color:var(--muted);${i > 0 ? 'border-left:1px solid var(--line)' : ''}`}
+            >
+              <span style="color:var(--accent);font-weight:600">{String(i + 1).padStart(2, '0')}</span>
+              {r}
+            </li>
+          ))}
+        </ul>
+
+        <p
+          class="font-display m-0 mt-7 rv rv-up"
+          style="--d:200ms;color:var(--ink);font-size:clamp(1.5rem,4vw,2.25rem);line-height:1.2;letter-spacing:-.02em"
+        >
+          From raw data to <em style="font-style:italic;color:var(--accent)">deployed intelligence</em>.
+        </p>
+
+        <p class="text-lg mt-6 mb-0 max-w-measure rv rv-up" style="--d:240ms;color:var(--muted)">
+          I build the whole path — governed ingestion pipelines on Airflow, Kafka and dbt,
+          then the models that run on top of them and the dashboards people actually read.
+        </p>
+
+        <div class="flex flex-wrap items-center gap-3.5 mt-8 rv rv-up" style="--d:300ms">
+          <a href="/projects" class="btn btn-primary">See the evidence</a>
+          <a href="/resume" class="btn btn-link">
+            Download CV
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v12m0 0l-5-5m5 5l5-5M4 20h16" />
+            </svg>
+          </a>
         </div>
       </div>
 
-      <!-- Avatar / Visual -->
-      <div class="flex justify-center animate-fade-up animate-delay-200">
-        <div class="relative">
-          <div class="absolute inset-0 rounded-full border-2 border-dashed border-indigo-200 dark:border-indigo-900 animate-[spin_20s_linear_infinite]"></div>
-          <div class="absolute -inset-4 rounded-full border border-slate-200 dark:border-navy-700"></div>
-          <div class="relative w-64 h-64 rounded-full bg-gradient-to-br from-navy-800 to-indigo-700 flex items-center justify-center shadow-2xl shadow-indigo-900/30">
-            <span class="font-display text-7xl text-white/90 italic">MR</span>
-            <div class="absolute bottom-4 right-4 flex items-center gap-2 bg-white dark:bg-navy-900 rounded-full px-3 py-1.5 shadow-lg border border-slate-100 dark:border-navy-700">
-              <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-              <span class="text-xs font-mono font-medium text-slate-600 dark:text-slate-300">Open to work</span>
-            </div>
+      <div class="rv rv-scale" style="--d:200ms">
+        <SpecimenPlate />
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ LIFECYCLE ============ -->
+  <section class="band-tight" style="border-top:1px solid var(--line);background:var(--sunk)">
+    <div class="shell">
+      <p class="eyebrow m-0 mb-6 rv rv-up">The path I work across</p>
+      <ol class="flex flex-wrap list-none m-0 p-0 rv rv-up" style="--d:60ms;gap:1px;background:var(--line)">
+        {lifecycle.map((step, i) => (
+          <li
+            class="flex items-baseline gap-2.5 min-w-0"
+            style="flex:1 1 150px;background:var(--sunk);padding:14px 16px 14px 0"
+          >
+            <span class="font-mono text-xs font-semibold"
+                  style="color:var(--accent);letter-spacing:.1em">{String(i + 1).padStart(2, '0')}</span>
+            <span class="text-sm" style="color:var(--ink-2)">{step}</span>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <!-- ============ STATS ============ -->
+  <section class="band-tight" style="border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
+    <div class="shell grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-9">
+      {stats.map((s, i) => (
+        <div class="rv rv-scale min-w-0" style={`--d:${i * 50}ms`}>
+          <div
+            class="font-display"
+            style="color:var(--ink);font-size:clamp(1.875rem,5vw,2.75rem);line-height:1.05;letter-spacing:-.02em;font-variant-numeric:tabular-nums"
+          >{s.value}</div>
+          <div class="font-mono text-xs mt-2" style="color:var(--muted);letter-spacing:.04em">{s.label}</div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- ============ FEATURED WORK ============ -->
+  <section class="shell band">
+    <div class="flex flex-wrap items-end justify-between gap-5 mb-10">
+      <div class="rv rv-up">
+        <p class="eyebrow m-0">Selected work</p>
+        <h2 class="mt-3.5 mb-0" style="font-size:clamp(1.875rem,5vw,2.75rem)">
+          Two platforms, with their evidence
+        </h2>
+      </div>
+      <a href="/projects" class="btn btn-link rv rv-up" style="--d:80ms">
+        All twelve projects
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6" />
+        </svg>
+      </a>
+    </div>
+
+    <div class="flex flex-col gap-6">
+      {featuredProjects.map((p, i) => (
+        <div class="rv rv-rise" style={`--d:${i * 90}ms`}>
+          <ProjectCard project={p} index={projects.indexOf(p)} variant="feature" />
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- ============ TOOLBOX ============ -->
+  <section class="shell band" style="border-top:1px solid var(--line)">
+    <div class="grid gap-10 lg:grid-cols-[minmax(0,.4fr)_minmax(0,.6fr)]">
+      <div class="rv rv-up">
+        <p class="eyebrow m-0">Toolbox</p>
+        <h2 class="mt-3.5 mb-0" style="font-size:clamp(1.875rem,5vw,2.75rem)">
+          What I reach for
+        </h2>
+        <p class="text-sm mt-4 mb-0 max-w-measure" style="color:var(--muted)">
+          Grouped by the job it does. Every tool here appears in a project on this site.
+        </p>
+      </div>
+
+      <div class="grid rv rv-up" style="--d:100ms;border-top:1px solid var(--line)">
+        {numbered.map((g) => (
+          <div
+            class="grid gap-y-1 gap-x-5 py-4 sm:grid-cols-[170px_1fr] sm:items-baseline"
+            style="border-bottom:1px solid var(--line)"
+          >
+            <h3 class="font-mono text-xs font-semibold uppercase m-0"
+                style="color:var(--accent);letter-spacing:.12em;line-height:1.6">{g.group}</h3>
+            <ul class="flex flex-wrap list-none m-0 p-0" style="gap:7px 9px">
+              {g.items.map((it) => (
+                <li class="inline-flex items-baseline gap-2 text-sm" style="color:var(--ink-2)">
+                  <span class="font-mono font-medium"
+                        style="font-size:10px;color:var(--faint);font-variant-numeric:tabular-nums">{it.i}</span>
+                  {it.name}
+                </li>
+              ))}
+            </ul>
           </div>
-        </div>
+        ))}
       </div>
     </div>
   </section>
 
-  <!-- Stats -->
-  <section class="border-y border-slate-100 dark:border-navy-800 bg-slate-50 dark:bg-navy-900/50 py-12 px-6">
-    <div class="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
-      {stats.map((stat, i) => (
-        <div class={`text-center observe-fade opacity-0-init animate-delay-${i * 100}`}>
-          <div class="font-display text-4xl text-navy-900 dark:text-white mb-1">{stat.value}</div>
-          <div class="text-sm text-slate-500 dark:text-slate-400 font-mono">{stat.label}</div>
-        </div>
-      ))}
-    </div>
-  </section>
-
-  <!-- Tech Stack -->
-  <section class="py-20 px-6 max-w-6xl mx-auto">
-    <div class="text-center mb-12 observe-fade opacity-0-init">
-      <p class="section-label">Toolbox</p>
-      <h2 class="font-display text-3xl md:text-4xl text-navy-900 dark:text-white">
-        Technologies I Work With
-      </h2>
-    </div>
-
-    <div class="flex flex-wrap justify-center gap-3 observe-fade opacity-0-init animate-delay-200">
-      {techStack.map(tech => (
-        <span class="badge text-sm py-2 px-4 cursor-default">
-          <span>{tech.icon}</span>
-          {tech.name}
-        </span>
-      ))}
-    </div>
-  </section>
-
-  <!-- About teaser -->
-  <section class="py-16 px-6 bg-navy-900 dark:bg-navy-950">
-    <div class="max-w-4xl mx-auto text-center observe-fade opacity-0-init">
-      <p class="section-label text-indigo-400">About</p>
-      <blockquote class="font-display text-2xl md:text-3xl text-white leading-relaxed mb-8 italic">
-        "I turn data into decisions — from medical images to security logs."
+  <!-- ============ ABOUT ============ -->
+  <section class="band" style="background:var(--sunk);border-top:1px solid var(--line)">
+    <div class="shell-narrow">
+      <p class="eyebrow m-0 rv rv-up">About</p>
+      <blockquote
+        class="font-display m-0 mt-6 rv rv-wipe"
+        style="--d:80ms;color:var(--ink);font-size:clamp(1.5rem,4.2vw,2.25rem);line-height:1.22;letter-spacing:-.02em"
+      >
+        A number is only worth what the pipeline behind it can prove.
       </blockquote>
-      <p class="text-slate-400 max-w-2xl mx-auto leading-relaxed mb-8">
-        Based in Padang, West Sumatera, Indonesia. Passionate about roles that combine data and artificial intelligence to deliver real-world solutions. Experienced in deep learning (DenseNet-169), anomaly detection, and full-stack analytics.
+      <p class="mt-7 mb-0 rv rv-up" style="--d:160ms;color:var(--muted);max-width:60ch">
+        Informatics graduate from Universitas Negeri Padang, based in Padang, West Sumatera.
+        I work across the whole data lifecycle: governed ingestion with lineage and data
+        contracts, warehouses guarded by tests that fail the build rather than the reader,
+        models that survive a leakage audit, and dashboards that say where the gaps are.
       </p>
-      <a href="/contact" class="btn-primary">Let's Connect</a>
+      <div class="flex flex-wrap gap-3.5 mt-9 rv rv-up" style="--d:220ms">
+        <a href="/contact" class="btn btn-primary">Get in touch</a>
+        <a href="/resume" class="btn btn-outline">Read the resume</a>
+      </div>
     </div>
   </section>
 </Layout>

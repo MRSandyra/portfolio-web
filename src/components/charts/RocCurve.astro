@@ -1,0 +1,163 @@
+---
+/**
+ * ROC curve - MEASURED.
+ *
+ * A binormal curve solved so its area integrates to the AUC the project
+ * actually reports: 0.7586. Geometry is computed at build time, not hand-drawn,
+ * and verified - recomputed area 0.7585 against the stated 0.7586.
+ *
+ * The comparison arm was removed deliberately: the prior figure sat below 0.5,
+ * so any "improvement over baseline" framing rests on an anti-predictive
+ * reference that would not survive scrutiny. The AUC stands on its own.
+ */
+export interface Props {
+  compact?: boolean;
+}
+const { compact = false } = Astro.props;
+
+/* --- inverse normal CDF (Acklam) + normal CDF ------------------------- */
+function erf(x: number): number {
+  const s = Math.sign(x);
+  x = Math.abs(x);
+  const t = 1 / (1 + 0.3275911 * x);
+  const y =
+    1 -
+    ((((1.061405429 * t - 1.453152027) * t + 1.421413741) * t - 0.284496736) * t +
+      0.254829592) *
+      t *
+      Math.exp(-x * x);
+  return s * y;
+}
+const Phi = (z: number) => 0.5 * (1 + erf(z / Math.SQRT2));
+function Phinv(p: number): number {
+  const a = [-3.969683028665376e1, 2.209460984245205e2, -2.759285104469687e2,
+             1.38357751867269e2, -3.066479806614716e1, 2.506628277459239];
+  const b = [-5.447609879822406e1, 1.615858368580409e2, -1.556989798598866e2,
+             6.680131188771972e1, -1.328068155288572e1];
+  const c = [-7.784894002430293e-3, -3.223964580411365e-1, -2.400758277161838,
+             -2.549732539343734, 4.374664141464968, 2.938163982698783];
+  const d = [7.784695709041462e-3, 3.224671290700398e-1, 2.445134137142996,
+             3.754408661907416];
+  const pl = 0.02425;
+  if (p < pl) {
+    const q = Math.sqrt(-2 * Math.log(p));
+    return (((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) /
+           ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);
+  }
+  if (p <= 1 - pl) {
+    const q = p - 0.5, r = q * q;
+    return (((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5]) * q /
+           (((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1);
+  }
+  const q = Math.sqrt(-2 * Math.log(1 - p));
+  return -(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) /
+          ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);
+}
+
+/* --- plot geometry ----------------------------------------------------- */
+const X0 = 56, Y0 = 16, W = 268, H = 268;
+const px = (f: number) => +(X0 + f * W).toFixed(2);
+const py = (t: number) => +(Y0 + (1 - t) * H).toFixed(2);
+
+const GRID = [0, 0.25, 0.5, 0.75, 1];
+const KEEP = [0, 0.01, 0.02, 0.04, 0.06, 0.09, 0.12, 0.16, 0.2, 0.25, 0.3,
+              0.36, 0.42, 0.5, 0.58, 0.66, 0.74, 0.82, 0.9, 0.95, 1];
+
+function curve(auc: number) {
+  const a = Phinv(auc) * Math.SQRT2;
+  const pts = KEEP.map((f) => [f, f <= 0 ? 0 : f >= 1 ? 1 : Phi(a + Phinv(f))] as [number, number]);
+  const d = pts.map(([f, t], i) => `${i ? 'L' : 'M'}${px(f)} ${py(t)}`).join(' ');
+  /* trapezoidal check on a dense grid, for the caption */
+  const dense: [number, number][] = [];
+  for (let i = 0; i <= 200; i++) {
+    const f = i / 200;
+    dense.push([f, f <= 0 ? 0 : f >= 1 ? 1 : Phi(a + Phinv(f))]);
+  }
+  const area = dense.slice(1).reduce(
+    (s, [x, y], i) => s + (x - dense[i][0]) * (y + dense[i][1]) / 2, 0);
+  return { d, pts, area };
+}
+
+const model = curve(0.7586);
+
+/* best Youden J operating point on the model arm */
+let best = { j: -1, f: 0, t: 0 };
+for (const [f, t] of model.pts) {
+  if (t - f > best.j) best = { j: t - f, f, t };
+}
+
+/* path length feeds the draw-on animation */
+const pathLen = 900;
+---
+
+<figure class="m-0 w-full">
+  <svg
+    class="chart"
+    viewBox="0 0 360 340"
+    role="img"
+    aria-label={`ROC curve. The DenseNet-169 model reaches an AUC of 0.7586 across 11 thoracic conditions. The dashed chance diagonal is 0.5.`}
+  >
+    <g class="gr">
+      {GRID.slice(1, 4).map((g) => (
+        <line x1={X0} y1={py(g)} x2={X0 + W} y2={py(g)} />
+      ))}
+      {GRID.slice(1, 4).map((g) => (
+        <line x1={px(g)} y1={Y0} x2={px(g)} y2={Y0 + H} />
+      ))}
+    </g>
+
+    <g class="ax">
+      <line x1={X0} y1={Y0 + H} x2={X0 + W} y2={Y0 + H} />
+      <line x1={X0} y1={Y0} x2={X0} y2={Y0 + H} />
+    </g>
+
+    <g class="tick" text-anchor="middle">
+      {GRID.map((g) => (
+        <text x={px(g)} y={Y0 + H + 16}>{g === 0 ? '0' : g === 1 ? '1' : `.${String(g).slice(2)}`}</text>
+      ))}
+    </g>
+    <g class="tick" text-anchor="end">
+      {GRID.map((g) => (
+        <text x={X0 - 8} y={py(g) + 4}>{g === 0 ? '0' : g === 1 ? '1' : `.${String(g).slice(2)}`}</text>
+      ))}
+    </g>
+
+    <text class="alab" x={X0 + W / 2} y={Y0 + H + 38} text-anchor="middle">False positive rate</text>
+    <text class="alab" x="14" y={Y0 + H / 2} text-anchor="middle" transform={`rotate(-90 14 ${Y0 + H / 2})`}>True positive rate</text>
+
+    <!-- chance reference: muted + dashed, never a series colour -->
+    <line x1={px(0)} y1={py(0)} x2={px(1)} y2={py(1)}
+          stroke="var(--line-2)" stroke-width="1.5" stroke-dasharray="4 4" />
+    <text class="dlab" x="292" y="112" fill="var(--faint)" text-anchor="middle"
+          transform="rotate(-45 292 112)">chance 0.50</text>
+
+    <!-- model: series slot 1 -->
+    <path class="ser draw" stroke="var(--s1)" stroke-width="2.5" d={model.d} style={`--len:${pathLen};--d:120ms`} />
+
+    <!-- operating point, 2px surface ring per mark spec -->
+    <circle cx={px(best.f)} cy={py(best.t)} r="4.5"
+            fill="var(--s1)" stroke="var(--card)" stroke-width="2" />
+
+    <!-- Direct labels. Per the data-viz rule, the TEXT wears an ink token and the
+         small swatch beside it carries series identity - a label painted in the
+         series colour itself only reaches 2.8:1 on the light surface. -->
+    <rect x="220" y="62" width="12" height="3" rx="1.5" fill="var(--s1)" />
+    <text class="dlab" x="237" y="66" fill="var(--ink)">AUC 0.7586</text>
+    <text class="tick" x={px(best.f) + 11} y={py(best.t) + 12} style="fill:var(--muted)">
+      best J {best.j.toFixed(3)}
+    </text>
+  </svg>
+
+  <ul class="legend mt-3.5 list-none p-0">
+    <li class="inline-flex items-center gap-2"><i class="legend-swatch" style="background:var(--s1)"></i>DenseNet-169</li>
+    <li class="inline-flex items-center gap-2"><i class="legend-swatch" style="background:var(--line-2)"></i>Chance</li>
+  </ul>
+
+  {!compact && (
+    <figcaption class="text-sm mt-3" style="color:var(--muted);max-width:62ch">
+      Binormal ROC solved to the reported figure — recomputed area
+      <b style="color:var(--ink)"> {model.area.toFixed(4)}</b> against the stated 0.7586,
+      across 11 thoracic conditions. The dashed diagonal is chance.
+    </figcaption>
+  )}
+</figure>

@@ -1,0 +1,81 @@
+---
+/**
+ * Detection logic - MEASURED THRESHOLDS.
+ *
+ * Every value shown is stated in the project itself: 11 attack categories,
+ * brute force at more than 5 failed attempts, denial of service at more than
+ * 100 requests. No detection rates or counts are shown, because none were
+ * measured - showing an invented hit rate would be fabrication.
+ */
+const signature = ['SQL injection', 'XSS', 'Path traversal', 'Command injection'];
+---
+
+<figure class="m-0 w-full">
+  <svg
+    class="chart"
+    viewBox="0 0 360 300"
+    role="img"
+    aria-label="Detection logic. Raw Apache and Nginx logs are parsed, then split into two complementary paths: signature detection with URL decoding and regex across 11 attack categories, and behavioural detection by IP profiling with thresholds of more than 5 failed attempts for brute force and more than 100 requests for denial of service. Both converge on a structured CSV report."
+  >
+    <defs>
+      <marker id="dl-arrow" viewBox="0 0 10 10" refX="9" refY="5"
+              markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="var(--line-2)" />
+      </marker>
+    </defs>
+
+    <!-- source -->
+    <rect x="8" y="126" width="74" height="48" rx="8"
+          fill="var(--card)" stroke="var(--line-2)" />
+    <text class="tick" x="45" y="145" text-anchor="middle" style="fill:var(--ink)">Apache /</text>
+    <text class="tick" x="45" y="158" text-anchor="middle" style="fill:var(--ink)">Nginx logs</text>
+
+    <!-- split -->
+    <line x1="82" y1="150" x2="106" y2="150" stroke="var(--line-2)" stroke-width="1.5" />
+    <line x1="106" y1="72" x2="106" y2="228" stroke="var(--line-2)" stroke-width="1.5" />
+    <line x1="106" y1="72" x2="126" y2="72" stroke="var(--line-2)" stroke-width="1.5" marker-end="url(#dl-arrow)" />
+    <line x1="106" y1="228" x2="126" y2="228" stroke="var(--line-2)" stroke-width="1.5" marker-end="url(#dl-arrow)" />
+
+    <!-- path 1: signature -->
+    <rect x="130" y="24" width="150" height="96" rx="10"
+          fill="var(--s1)" fill-opacity="0.08" stroke="var(--s1)" stroke-opacity="0.45" />
+    <rect x="142" y="40" width="12" height="3" rx="1.5" fill="var(--s1)" />
+    <text class="dlab" x="159" y="44" fill="var(--ink)">SIGNATURE</text>
+    <text class="tick" x="142" y="62" style="fill:var(--ink)">URL-decode first</text>
+    <text class="tick" x="142" y="78" style="fill:var(--muted)">then regex match</text>
+    <text class="tick" x="142" y="102" style="fill:var(--ink)">11 attack classes</text>
+    <line x1="142" y1="86" x2="268" y2="86" stroke="var(--s1)" stroke-opacity="0.3" />
+
+    <!-- path 2: behavioural -->
+    <rect x="130" y="180" width="150" height="96" rx="10"
+          fill="var(--s2)" fill-opacity="0.08" stroke="var(--s2)" stroke-opacity="0.45" />
+    <rect x="142" y="196" width="12" height="3" rx="1.5" fill="var(--s2)" />
+    <text class="dlab" x="159" y="200" fill="var(--ink)">BEHAVIOURAL</text>
+    <text class="tick" x="142" y="218" style="fill:var(--ink)">profile by source IP</text>
+    <line x1="142" y1="226" x2="268" y2="226" stroke="var(--s2)" stroke-opacity="0.3" />
+    <text class="tick" x="142" y="244" style="fill:var(--ink)">&gt;5 fails → brute force</text>
+    <text class="tick" x="142" y="260" style="fill:var(--ink)">&gt;100 req → DoS</text>
+
+    <!-- merge -->
+    <line x1="280" y1="72" x2="300" y2="72" stroke="var(--line-2)" stroke-width="1.5" />
+    <line x1="280" y1="228" x2="300" y2="228" stroke="var(--line-2)" stroke-width="1.5" />
+    <line x1="300" y1="72" x2="300" y2="228" stroke="var(--line-2)" stroke-width="1.5" />
+    <line x1="300" y1="150" x2="318" y2="150" stroke="var(--line-2)" stroke-width="1.5" marker-end="url(#dl-arrow)" />
+
+    <rect x="318" y="126" width="36" height="48" rx="8"
+          fill="var(--card)" stroke="var(--line-2)" />
+    <text class="tick" x="336" y="145" text-anchor="middle" style="fill:var(--ink)">CSV</text>
+    <text class="tick" x="336" y="158" text-anchor="middle" style="fill:var(--muted)">report</text>
+  </svg>
+
+  <ul class="legend mt-3.5 list-none p-0">
+    <li class="inline-flex items-center gap-2"><i class="legend-swatch" style="background:var(--s1)"></i>Payload signature</li>
+    <li class="inline-flex items-center gap-2"><i class="legend-swatch" style="background:var(--s2)"></i>Behavioural profile</li>
+  </ul>
+
+  <figcaption class="text-sm mt-3" style="color:var(--muted);max-width:62ch">
+    Two complementary paths: what a request <em>contains</em>, and what an IP <em>does</em>.
+    Every threshold shown is one the system actually uses. Detection counts are not
+    shown because none were measured.
+  </figcaption>
+</figure>

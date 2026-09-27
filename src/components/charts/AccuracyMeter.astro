@@ -1,0 +1,82 @@
+---
+/**
+ * Sentiment classifier accuracy - MEASURED.
+ *
+ * ~83% accuracy on a dataset balanced by downsampling. That is the only
+ * performance figure recorded for this project, so it is the only one shown:
+ * the per-class breakdown was never captured, which is why there is no
+ * confusion matrix here and the caption says so plainly.
+ *
+ * Balancing first is what makes the number quotable - on an imbalanced set,
+ * accuracy mostly measures the majority class.
+ */
+const ACCURACY = 83;
+
+/* Ink for text sitting ON a series fill. It cannot be var(--ink), because in
+   dark mode that resolves to white and white on the orange bar is only 3.88:1.
+   This one value is mode-invariant and clears 4.5:1 against both bar colours:
+   5.63 on the light bar (#eb6834), 4.64 on the dark bar (#d95926).
+   It is the ash-900 step already in the palette, not a new colour. */
+const ON_FILL_INK = '#191613';
+
+
+const W = 360;
+const H = 150;
+const X0 = 18;
+const TRACK_W = W - X0 * 2;
+const BAR_Y = 54;
+const BAR_H = 30;
+const GAP = 2;
+const R = 4;
+
+const fill = (ACCURACY / 100) * TRACK_W;
+const restX = X0 + fill + GAP;
+const restW = Math.max(0, TRACK_W - fill - GAP);
+
+function endCap(x: number, y: number, w: number, h: number) {
+  const r = Math.min(R, w / 2);
+  return `M${x} ${y} L${x + w - r} ${y} Q${x + w} ${y} ${x + w} ${y + r} L${x + w} ${y + h - r} Q${x + w} ${y + h} ${x + w - r} ${y + h} L${x} ${y + h} Z`;
+}
+const TICKS = [0, 25, 50, 75, 100];
+---
+
+<figure class="m-0 w-full">
+  <svg
+    class="chart"
+    viewBox={`0 0 ${W} ${H}`}
+    role="img"
+    aria-label="Classifier accuracy is about 83 percent on a dataset balanced by downsampling."
+  >
+    <text class="alab" x={X0} y="24" fill="var(--muted)">Accuracy on balanced set</text>
+
+    <!-- remainder, recessive, 2px surface gap from the value -->
+    {restW > 0 && <path d={endCap(restX, BAR_Y, restW, BAR_H)} fill="var(--line)" />}
+    <path d={endCap(X0, BAR_Y, fill, BAR_H)} fill="var(--s1)" />
+
+    <!-- value label in ink on the fill, never in the series colour -->
+    <text class="dlab" x={X0 + fill - 12} y={BAR_Y + BAR_H / 2 + 4} text-anchor="end"
+          fill={ON_FILL_INK} style="font-size:13px">~{ACCURACY}%</text>
+
+    <!-- axis -->
+    <line class="ax" x1={X0} y1={BAR_Y + BAR_H + 9} x2={X0 + TRACK_W} y2={BAR_Y + BAR_H + 9} />
+    {TICKS.map((t) => (
+      <g>
+        <line class="ax" x1={X0 + (t / 100) * TRACK_W} y1={BAR_Y + BAR_H + 9}
+              x2={X0 + (t / 100) * TRACK_W} y2={BAR_Y + BAR_H + 14} />
+        <text class="tick" x={X0 + (t / 100) * TRACK_W} y={BAR_Y + BAR_H + 27}
+              text-anchor="middle" style="fill:var(--faint)">{t}</text>
+      </g>
+    ))}
+
+    <text class="tick" x={X0} y={H - 8} style="fill:var(--muted)">
+      Classes balanced by downsampling before training
+    </text>
+  </svg>
+
+  <figcaption class="text-sm mt-3" style="color:var(--muted);max-width:62ch">
+    <b style="color:var(--ink)">One figure, because one figure exists.</b> Accuracy was recorded;
+    the per-class breakdown was not, so no confusion matrix is shown rather than one being
+    reconstructed. Balancing the classes first is what stops accuracy from simply reporting
+    the majority class.
+  </figcaption>
+</figure>

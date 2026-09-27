@@ -1,0 +1,45 @@
+---
+/**
+ * Picks the right visual for a project, based on what evidence actually exists.
+ * The mapping is deliberate - see the `evidence.status` contract in
+ * src/data/projects.js. A project with no measured numbers never gets a chart
+ * that implies it has some.
+ *
+ * `variant="architecture"` forces the pipeline diagram, so a project whose card
+ * visual is a chart can still show its architecture on the case-study page.
+ */
+import RocCurve from './RocCurve.astro';
+import LorenzCurve from './LorenzCurve.astro';
+import DetectionLogic from './DetectionLogic.astro';
+import PipelineDiagram from './PipelineDiagram.astro';
+import CoverageChart from './CoverageChart.astro';
+import AccuracyMeter from './AccuracyMeter.astro';
+
+export interface Props {
+  project: any;
+  compact?: boolean;
+  variant?: 'primary' | 'architecture';
+  showCaption?: boolean;
+}
+const { project, compact = false, variant = 'primary', showCaption = true } = Astro.props;
+const { type, status, stages, branch, note } = project.evidence;
+
+const asArchitecture = variant === 'architecture';
+---
+
+{asArchitecture ? (
+  stages && (
+    <PipelineDiagram stages={stages} branch={branch} status={status} showCaption={showCaption} />
+  )
+) : (
+  <>
+    {type === 'roc' && <RocCurve compact={compact} />}
+    {type === 'lorenz' && <LorenzCurve />}
+    {type === 'detection-logic' && <DetectionLogic />}
+    {type === 'coverage' && <CoverageChart />}
+    {type === 'accuracy' && <AccuracyMeter />}
+    {type === 'pipeline' && (
+      <PipelineDiagram stages={stages} branch={branch} note={note} status={status} showCaption={showCaption} />
+    )}
+  </>
+)}
